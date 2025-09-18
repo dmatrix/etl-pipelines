@@ -1,12 +1,12 @@
 """
 Databricks Lakeflow Declarative Pipelines Examples
 
-This package contains example implementations of Databricks Lakeflow Declarative Pipelines (DLT),
+This package contains example implementations of Databricks Lakeflow Declarative Pipelines (LDP),
 demonstrating data processing workflows for:
 
-- Oil Rigs: Industrial IoT sensor monitoring and analysis
+- Music Analytics: Streaming music data analytics with Bronze-Silver-Gold architecture
 
-The DLT framework enables declarative data transformations through Python decorators
+The LDP framework enables declarative data transformations through Python decorators
 and SQL, providing a clean and maintainable approach to data pipeline development on Databricks.
 """
 

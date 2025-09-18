@@ -23,15 +23,16 @@ etl-pipelines/
 ├── CLAUDE.md                          # Claude Code configuration
 └── src/py/
     ├── sdp/                          # Spark Declarative Pipelines examples
-    │   ├── SDP_README.md             # Comprehensive SDP documentation
+    │   ├── README.md                 # Comprehensive SDP documentation
     │   ├── brickfood/                # E-commerce analytics pipeline
     │   ├── oil_rigs/                 # Industrial IoT monitoring pipeline
     │   └── utils/                    # Shared data generation utilities
-    └── ldp/                          # Live Data Pipelines (Databricks DLT)
-        └── real-time-orders/         # Real-time e-commerce DLT pipeline
-            ├── README.md             # DLT project overview
-            ├── CLAUDE.md             # Claude Code DLT configuration
-            └── pipelines/            # DLT pipeline definitions
+    ├── ldp/                          # Lakeflow Declarative Pipelines (Databricks)
+    │   └── music_analytics/          # Million Song Dataset analytics pipeline
+    │       ├── README.md             # Music analytics documentation
+    │       ├── images/               # Pipeline visualization assets
+    │       └── transformations/      # LDP transformation definitions
+    └── generators/                   # Cross-framework data generators
 ```
 
 ## 🚀 Getting Started
@@ -49,22 +50,20 @@ uv sync
 # Run BrickFood e-commerce pipeline
 python main.py brickfood
 
-# Run Oil Rigs sensor monitoring pipeline  
+# Run Oil Rigs sensor monitoring pipeline
 python main.py oil-rigs
 ```
 
-### LDP - Lakeflow Declarative Pipelines (Databricks LDP)
-Ideal for real-time data processing with medallion architecture.
+### LDP - Lakeflow Declarative Pipelines (Databricks)
+Ideal for streaming data processing with medallion architecture and data quality validation.
 
 ```bash
-# Navigate to LDP examples
-cd src/py/ldp/real-time-orders
+# Navigate to Music Analytics LDP example
+cd src/py/ldp/music_analytics
 
-# Generate test data
-cd ../../generators && python general_order_generator.py --interval 1 --end 1
-
-# Deploy DLT pipeline through Databricks workspace
-# See CLAUDE.md for detailed deployment instructions
+# Deploy pipeline to Databricks workspace
+# Pipeline processes Million Song Dataset with medallion architecture
+# See README.md for detailed implementation overview
 ```
 
 ## 📊 Use Cases Demonstrated
@@ -83,12 +82,13 @@ cd ../../generators && python general_order_generator.py --interval 1 --end 1
 - **Storage**: Local Spark warehouse with time-series data
 - **Scale**: Sensor analytics and operational monitoring
 
-### 3. **Real-time Order Processing** (LDP)
+### 3. **Music Analytics - Million Song Dataset** (LDP)
 - **Framework**: Databricks Lakeflow Declarative Pipelines
-- **Data**: Streaming e-commerce orders with real-time processing
-- **Features**: Bronze/Silver/Gold medallion architecture, data quality validation
-- **Storage**: Unity Catalog with Delta tables
-- **Scale**: Production-ready real-time processing
+- **Data**: Million Song Dataset with 20 fields of artist, song, and audio features
+- **Features**: Medallion architecture (Bronze/Silver/Gold), streaming ingestion, data quality validation
+- **Analytics**: Top artists, yearly trends, location-based music analytics, temporal statistics
+- **Storage**: Delta tables with comprehensive data lineage
+- **Scale**: Production-ready streaming data processing with Auto Loader
 
 ## 🛠️ Technologies & Frameworks
 
@@ -128,17 +128,16 @@ uv run black .             # Format code
 uv run flake8 .            # Lint code
 ```
 
-### DLT Commands  
+### LDP Commands
 ```bash
-# Generate test data
-cd src/py/generators && python general_order_generator.py
+# Navigate to Music Analytics pipeline
+cd src/py/ldp/music_analytics
 
-# Validate configuration
-cd src/py/ldp/real-time-orders
-python utils/config_manager.py --validate --env dev
+# View pipeline documentation and architecture
+cat README.md
 
-# Test data quality rules
-python utils/data_quality.py --test
+# Deploy to Databricks workspace (requires Databricks environment)
+# See transformations/dlt_songs_pipeline.py for implementation
 ```
 
 ## 🎯 Learning Objectives
@@ -155,9 +154,8 @@ This repository demonstrates:
 ## 📚 Documentation
 
 - **[SDP README.md](src/py/sdp/README.md)**: Comprehensive Spark Declarative Pipelines guide
-- **[LDP README](src/py/ldp/real-time-orders/README.md)**: Lakeflow Declarative Pipelines implementation overview
+- **[Music Analytics LDP README](src/py/ldp/music_analytics/README.md)**: Million Song Dataset Lakeflow Declarative Pipelines implementation
 - **[CLAUDE.md](CLAUDE.md)**: Claude Code configuration for repository navigation
-- **[LDP CLAUDE.md](src/py/ldp/real-time-orders/CLAUDE.md)**: Claude Code configuration for LDP development
 
 ## 🔧 Development Setup
 

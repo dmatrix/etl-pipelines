@@ -65,19 +65,10 @@ def songs_raw():
     )
 
 # -----------------------------------------------------------
-# Cleaned & validated view
+# Helper function for data preparation (not a materialized table)
 # -----------------------------------------------------------
-@dlt.table(comment="Million Song Dataset with data cleaned and prepared for analysis using Lakeflow Declarative Pipelines.")
-@dlt.expect("valid_artist_name", "artist_name IS NOT NULL")
-@dlt.expect("valid_title", "song_title IS NOT NULL")
-@dlt.expect("artist_location", "artist_location IS NOT NULL")
-@dlt.expect("valid_duration", "duration > 0")
-@dlt.expect("valid_tempo", "tempo > 0")
-@dlt.expect("valid_time_signature", "time_signature > 0")
-@dlt.expect("valid_year", "year > 0")
-@dlt.expect("valid_release","release IS NOT NULL" )
-
-def songs_prepared():
+def get_prepared_songs_data():
+    """Helper function to get cleaned and prepared songs data for silver tables."""
     return (
         spark.read.table("songs_raw")
         .withColumnRenamed("title", "song_title")
@@ -108,8 +99,9 @@ def songs_prepared():
 @dlt.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
 def songs_metadata_silver():
     """Silver table focused on song metadata, releases, and temporal information."""
+    prepared_data = get_prepared_songs_data()
     return (
-        dlt.read("songs_prepared")
+        prepared_data
         .select(
             "song_title",
             "artist_name",
@@ -131,8 +123,9 @@ def songs_metadata_silver():
 @dlt.expect("reasonable_duration_audio", "duration > 10 AND duration < 3600")
 def songs_audio_features_silver():
     """Silver table focused on audio characteristics and musical features."""
+    prepared_data = get_prepared_songs_data()
     return (
-        dlt.read("songs_prepared")
+        prepared_data
         .select(
             "song_title",
             "artist_name",
@@ -159,12 +152,12 @@ def songs_audio_features_silver():
 )
 def top_artists_by_year():
     return (
-        spark.read.table("songs_prepared")
-        .filter(expr("year > 0"))
+        dlt.read("songs_metadata_silver")
+        .filter(F.col("year") > 0)
         .groupBy("artist_name", "year")
         .count()
         .withColumnRenamed("count", "total_number_of_songs")
-        .sort(desc("total_number_of_songs"), desc("year"))
+        .sort(F.desc("total_number_of_songs"), F.desc("year"))
     )
 
 
@@ -181,7 +174,7 @@ from pyspark.sql.window import Window
     comment="All-time count of songs released by each artist via Lakeflow Declarative Pipelines."
 )
 def top_artists_overall():
-    df = dlt.read("songs_prepared")
+    df = dlt.read("songs_metadata_silver")
 
     result = (df.groupBy("artist_name")
                 .agg(F.count("*").alias("total_number_of_songs"))
@@ -198,7 +191,16 @@ def top_artists_overall():
     comment="Year-over-year summary statistics for released songs processed by Lakeflow Declarative Pipelines."
 )
 def yearly_song_stats():
-    df = dlt.read("songs_prepared")
+    # Join both silver tables to get complete yearly statistics
+    metadata_df = dlt.read("songs_metadata_silver")
+    audio_df = dlt.read("songs_audio_features_silver")
+
+    # Join on song and artist to get complete data
+    df = metadata_df.join(
+        audio_df.select("song_title", "artist_name", "tempo", "time_signature"),
+        on=["song_title", "artist_name"],
+        how="inner"
+    )
 
     result = (df
         .filter(F.col("year") > 0)                               # drop unknown years
@@ -224,7 +226,8 @@ def yearly_song_stats():
     comment="Song counts and average attributes by artist location using Lakeflow Declarative Pipelines."
 )
 def artist_location_summary():
-    df = dlt.read("songs_prepared")
+    # Use the helper function to get location data (since it's not in our silver tables)
+    df = get_prepared_songs_data()
 
     result = (df
         .withColumn("location",

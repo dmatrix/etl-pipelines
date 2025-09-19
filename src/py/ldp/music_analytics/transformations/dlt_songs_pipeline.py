@@ -75,13 +75,8 @@ def songs_raw():
 @dlt.expect("valid_tempo", "tempo > 0")
 @dlt.expect("valid_time_signature", "time_signature > 0")
 @dlt.expect("valid_year", "year > 0")
-@dlt.expect("valid_song_title", "song_title IS NOT NULL")
-@dlt.expect("valid_artist_name", "artist_name IS NOT NULL")
-@dlt.expect("valid_artist_location", "artist_location IS NOT NULL")
-@dlt.expect("valid_duration", "duration > 0")
-@dlt.expect("valid_tempo", "tempo > 0")
-@dlt.expect("valid_time_signature", "time_signature > 0")
-@dlt.expect("valid_year", "year > 0")
+@dlt.expect("valid_release","release IS NOT NULL" )
+
 def songs_prepared():
     return (
         spark.read.table("songs_raw")

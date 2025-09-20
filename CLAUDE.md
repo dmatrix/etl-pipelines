@@ -125,10 +125,15 @@ ldp_pipeline_name/
 4. **Analytics**: Query modules provide data access and visualization capabilities
 
 #### LDP Data Flow (Music Analytics)
-1. **Bronze Layer**: Raw data ingestion from Million Song Dataset with Auto Loader
-2. **Silver Layer**: Data cleaning and validation with `@dlt.expect` quality rules
-3. **Gold Layer**: Analytics-ready aggregated views for business intelligence
-4. **Visualization**: Comprehensive README with pipeline architecture diagrams
+1. **Bronze Layer**: Raw data ingestion from Million Song Dataset with Auto Loader (`songs_raw`)
+2. **Silver Layer**: Specialized data preparation with comprehensive validation
+   - `songs_metadata_silver`: Release and temporal information with year/duration validation
+   - `songs_audio_features_silver`: Musical characteristics with tempo/time signature validation
+3. **Gold Layer**: Advanced analytics views across three categories:
+   - **Temporal Analytics**: `top_artists_by_year`, `yearly_song_stats`, `release_trends_gold`, `artist_location_summary`
+   - **Artist Analytics**: `top_artists_overall`, `artist_discography_gold`, `comprehensive_artist_profile_gold`
+   - **Musical Analysis**: `musical_characteristics_gold`, `tempo_time_signature_analysis_gold`
+4. **Visualization**: Comprehensive README with updated medallion architecture diagrams
 
 ### Key Framework Patterns
 
@@ -139,10 +144,12 @@ ldp_pipeline_name/
 - **Configuration-driven Discovery**: `pipeline.yml` uses glob patterns to auto-discover transformation files
 
 #### LDP Patterns
-- **Medallion Architecture**: Bronze/Silver/Gold progression with clear data lineage
-- **Data Quality Framework**: `@dlt.expect` decorators for validation rules
-- **Streaming Ingestion**: Auto Loader for incremental data processing
-- **Declarative Definitions**: `@dlt.table` decorators for transformation specification
+- **Medallion Architecture**: Bronze/Silver/Gold progression with clear data lineage and specialized silver tables
+- **Data Quality Framework**: Comprehensive `@dlt.expect` decorators for validation rules (tempo ranges, year validation, duration checks)
+- **Streaming Ingestion**: Auto Loader for incremental data processing with schema enforcement
+- **Declarative Definitions**: `@dlt.table` decorators for transformation specification with automatic dependency resolution
+- **Specialized Silver Tables**: Domain-focused tables (`metadata_silver`, `audio_features_silver`) for targeted analytics
+- **Advanced Gold Analytics**: Multi-dimensional analysis tables combining temporal, artist, and musical perspectives
 
 ## Important Dependencies
 
@@ -155,7 +162,7 @@ ldp_pipeline_name/
 
 ### LDP Dependencies
 - **Databricks Runtime**: Required for Lakeflow Declarative Pipelines
-- **Delta Live Tables**: Declarative pipeline framework (now called LDP)
+- **Lakeflow Declarative Pipelines**: Declarative pipeline framework (now called LDP)
 - **Auto Loader**: Streaming file ingestion capability
 - **Unity Catalog**: Data governance and lineage tracking
 

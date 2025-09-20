@@ -85,10 +85,12 @@ cd src/py/ldp/music_analytics
 ### 3. **Music Analytics - Million Song Dataset** (LDP)
 - **Framework**: Databricks Lakeflow Declarative Pipelines
 - **Data**: Million Song Dataset with 20 fields of artist, song, and audio features
-- **Features**: Medallion architecture (Bronze/Silver/Gold), streaming ingestion, data quality validation
-- **Analytics**: Top artists, yearly trends, location-based music analytics, temporal statistics
-- **Storage**: Delta tables with comprehensive data lineage
-- **Scale**: Production-ready streaming data processing with Auto Loader
+- **Architecture**: Medallion pattern with specialized silver tables and comprehensive gold analytics
+- **Silver Layer**: Domain-focused tables (`songs_metadata_silver`, `songs_audio_features_silver`) with comprehensive data quality validation
+- **Gold Layer**: 9 advanced analytics tables across temporal, artist, and musical analysis dimensions
+- **Analytics**: Artist discography analysis, temporal trends, musical characteristics, tempo/time signature patterns, comprehensive artist profiles
+- **Storage**: Delta tables with Unity Catalog integration and automatic data lineage
+- **Scale**: Production-ready streaming data processing with Auto Loader and extensive data quality rules
 
 ## 🛠️ Technologies & Frameworks
 
@@ -101,11 +103,12 @@ cd src/py/ldp/music_analytics
 - **Plotly**: Interactive data visualizations
 
 ### Architecture Patterns
-- **Declarative Pipelines**: SDP framework with Python decorators
-- **Medallion Architecture**: Bronze/Silver/Gold data layers (DLT)
-- **Materialized Views**: Efficient data transformation caching
-- **Data Quality Framework**: Validation rules and monitoring
-- **Shared Utilities**: Reusable data generation components
+- **Declarative Pipelines**: SDP framework with Python decorators and LDP with `@dlt.table` decorators
+- **Medallion Architecture**: Bronze/Silver/Gold data layers with specialized silver tables for domain separation
+- **Materialized Views**: Efficient data transformation caching and automatic dependency resolution
+- **Data Quality Framework**: Comprehensive validation rules with `@dlt.expect` decorators for tempo, duration, and metadata validation
+- **Advanced Analytics**: Multi-dimensional gold layer tables combining temporal, artist, and musical analysis
+- **Shared Utilities**: Reusable data generation components across frameworks
 
 ## 📋 Quick Reference
 
@@ -144,12 +147,13 @@ cat README.md
 
 This repository demonstrates:
 
-1. **Framework Comparison**: SDP vs DLT for different use cases
-2. **Data Generation**: Realistic synthetic data creation patterns
-3. **Pipeline Architecture**: Declarative vs streaming approaches  
-4. **Quality Engineering**: Data validation and monitoring strategies
-5. **Modern Tooling**: UV, Unity Catalog, and latest Spark features
-6. **Production Patterns**: Environment management and deployment workflows
+1. **Framework Comparison**: SDP vs LDP for different use cases and data processing paradigms
+2. **Data Generation**: Realistic synthetic data creation patterns with Faker library
+3. **Pipeline Architecture**: Declarative transformations, medallion architecture, and specialized table design
+4. **Quality Engineering**: Comprehensive data validation with `@dlt.expect` rules and monitoring strategies
+5. **Advanced Analytics**: Multi-dimensional analysis combining temporal trends, artist profiling, and musical characteristics
+6. **Modern Tooling**: UV package management, Unity Catalog, Auto Loader, and latest Spark features
+7. **Production Patterns**: Streaming ingestion, environment management, and scalable deployment workflows
 
 ## 📚 Documentation
 

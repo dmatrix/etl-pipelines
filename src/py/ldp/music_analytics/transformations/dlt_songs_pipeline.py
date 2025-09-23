@@ -46,7 +46,7 @@ schema = StructType(
 )
 
 # -----------------------------------------------------------
-# Raw ingestion table
+# Raw ingestion table - Bronze layer
 # -----------------------------------------------------------
 @dlt.table(
     comment=(
@@ -54,7 +54,7 @@ schema = StructType(
         "of features and metadata for contemporary music tracks. Processed via Lakeflow Declarative Pipelines."
     )
 )
-def songs_raw():
+def songs_raw_bronze():
     """Ingest new CSV files as they arrive with Auto Loader."""
     return (
         spark.readStream.format("cloudFiles")
@@ -70,7 +70,7 @@ def songs_raw():
 def get_prepared_songs_data():
     """Helper function to get cleaned and prepared songs data for silver tables."""
     return (
-        spark.read.table("songs_raw")
+        spark.read.table("songs_raw_bronze")
         .withColumnRenamed("title", "song_title")
         .select(
             "artist_id",
@@ -142,7 +142,7 @@ def songs_audio_features_silver():
     )
 
 # -----------------------------------------------------------
-# Aggregated view: Top artists per year
+# 1. Aggregated Gold layer view: Top artists per year
 # -----------------------------------------------------------
 @dlt.table(
     comment=(
@@ -150,7 +150,7 @@ def songs_audio_features_silver():
         "who released the most songs each year."
     )
 )
-def top_artists_by_year():
+def top_artists_by_year_gold():
     return (
         dlt.read("songs_metadata_silver")
         .filter(F.col("year") > 0)
@@ -167,13 +167,13 @@ from pyspark.sql.window import Window
 # ---------------------------------------------------------------------------
 # Create additional materialized views using Lakeflow Declarative Pipelines
 # 
-# 1.  Top artists across the entire catalogue
+# 2. Aggregated Gold layer view: Top artists across the entire catalogue
 # ---------------------------------------------------------------------------
 @dlt.table(
     name="top_artists_overall",
     comment="All-time count of songs released by each artist via Lakeflow Declarative Pipelines."
 )
-def top_artists_overall():
+def top_artists_overall_gold():
     df = dlt.read("songs_metadata_silver")
 
     result = (df.groupBy("artist_name")
@@ -184,13 +184,13 @@ def top_artists_overall():
 
 
 # ---------------------------------------------------------------------------
-# 2.  Year-over-year song-level summary statistics
+# 3. Aggregated Gold layer view: Year-over-year song-level summary statistics
 # ---------------------------------------------------------------------------
 @dlt.table(
     name="yearly_song_stats",
     comment="Year-over-year summary statistics for released songs processed by Lakeflow Declarative Pipelines."
 )
-def yearly_song_stats():
+def yearly_song_stats_gold():
     # Join both silver tables to get complete yearly statistics
     metadata_df = dlt.read("songs_metadata_silver")
     audio_df = dlt.read("songs_audio_features_silver")
@@ -219,13 +219,13 @@ def yearly_song_stats():
 
 
 # ---------------------------------------------------------------------------
-# 3.  Location-level song statistics
+# 4. Aggregated Gold layer view: Location-level song statistics
 # ---------------------------------------------------------------------------
 @dlt.table(
     name="artist_location_summary",
     comment="Song counts and average attributes by artist location using Lakeflow Declarative Pipelines."
 )
-def artist_location_summary():
+def artist_location_summary_gold():
     # Use the helper function to get location data (since it's not in our silver tables)
     df = get_prepared_songs_data()
 
@@ -244,7 +244,7 @@ def artist_location_summary():
 
 
 # ---------------------------------------------------------------------------
-# Gold Layer - Advanced Analytics from Silver Tables
+# 5. Aggregated Gold layer view: Release trends and temporal analysis
 # ---------------------------------------------------------------------------
 
 @dlt.table(
@@ -271,6 +271,9 @@ def release_trends_gold():
 
     return result
 
+# ---------------------------------------------------------------------------
+# 6. Aggregated Gold layer view: Artist discography and career metrics
+# ---------------------------------------------------------------------------
 @dlt.table(
     name="artist_discography_gold",
     comment="Artist catalog analysis including career span and productivity metrics from metadata silver."
@@ -297,6 +300,9 @@ def artist_discography_gold():
 
     return result
 
+# ---------------------------------------------------------------------------
+# 7. Aggregated Gold layer view: Musical characteristics and analysis
+# ---------------------------------------------------------------------------
 @dlt.table(
     name="musical_characteristics_gold",
     comment="Audio feature distributions and musical analysis from audio features silver layer."
@@ -327,6 +333,9 @@ def musical_characteristics_gold():
 
     return result
 
+# ---------------------------------------------------------------------------
+# 8. Aggregated Gold layer view: Tempo and time signature relationship analysis
+# ---------------------------------------------------------------------------
 @dlt.table(
     name="tempo_time_signature_analysis_gold",
     comment="Detailed tempo and time signature relationship analysis from audio features silver."
@@ -354,6 +363,9 @@ def tempo_time_signature_analysis_gold():
 
     return result
 
+# ---------------------------------------------------------------------------
+# 9. Aggregated Gold layer view: Comprehensive artist profile
+# ---------------------------------------------------------------------------
 @dlt.table(
     name="comprehensive_artist_profile_gold",
     comment="Combined artist analysis merging metadata and audio characteristics from both silver tables."

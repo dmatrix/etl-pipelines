@@ -14,7 +14,7 @@ This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation
 
 🥉 BRONZE LAYER (Raw Data)
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  📁 songs_raw                                                           │
+│  📁 songs_raw_bronze                                                    │
 │  ┌────────────────────────────────────────────────────────────────────┐ │
 │  │ • Raw CSV ingestion via Auto Loader                                │ │
 │  │ • Tab-separated Million Song Dataset                               │ │
@@ -22,21 +22,21 @@ This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation
 │  │ • Streaming ingestion with schema enforcement                      │ │
 │  │ • Source: /databricks-datasets/songs/data-001                      │ │
 │  └────────────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────────────┘
+└─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 🥈 SILVER LAYER (Specialized & Validated)
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  📊 songs_metadata_silver         🎵 songs_audio_features_silver        │
-│  ┌─────────────────────────────┐   ┌─────────────────────────────────┐   │
-│  │ • Release & temporal data   │   │ • Musical characteristics       │   │
-│  │ • Artist discography info   │   │ • Tempo & rhythm analysis       │   │
-│  │ • Duration & year metadata  │   │ • Time signature patterns       │   │
-│  │ • @dlt.expect validations:  │   │ • @dlt.expect validations:      │   │
-│  │   ✓ Release years 1900-2030 │   │   ✓ Tempo range 40-250 BPM     │   │
-│  │   ✓ Non-null titles/artists │   │   ✓ Time signatures 1-12       │   │
-│  │   ✓ Duration 10-3600 seconds│   │   ✓ Reasonable song durations   │   │
-│  └─────────────────────────────┘   └─────────────────────────────────┘   │
+│  ┌─────────────────────────────┐   ┌─────────────────────────────────┐  │
+│  │ • Release & temporal data   │   │ • Musical characteristics       │  │
+│  │ • Artist discography info   │   │ • Tempo & rhythm analysis       │  │
+│  │ • Duration & year metadata  │   │ • Time signature patterns       │  │
+│  │ • @dlt.expect validations:  │   │ • @dlt.expect validations:      │  │
+│  │   ✓ Release years 1900-2030 │   │   ✓ Tempo range 40-250 BPM      │  │
+│  │   ✓ Non-null titles/artists │   │   ✓ Time signatures 1-12        │  │
+│  │   ✓ Duration 10-3600 seconds│   │   ✓ Reasonable song durations   │  │
+│  └─────────────────────────────┘   └─────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -44,16 +44,16 @@ This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation
 ┌──────────────────────────────────────────────────────────────────────────┐
 │  📊 Temporal Analytics           🎨 Artist Analytics      🎵 Musical Analysis│
 │  ┌─────────────────────────┐    ┌─────────────────────┐  ┌──────────────────┐ │
-│  │ 🎯 top_artists_by_year  │    │ 🏆 top_artists_overall│  │ 🎼 musical_characteristics│
-│  │ 📈 yearly_song_stats    │    │ 📀 artist_discography │  │ 🥁 tempo_time_signature   │
-│  │ 📅 release_trends_gold  │    │ 👤 comprehensive_profile│  │ _analysis_gold            │
-│  │ 🌍 artist_location_sum  │    └─────────────────────┘  └──────────────────┘ │
-│  └─────────────────────────┘                                                │
+│  │ 🎯 top_artists_by_year_gold│    │ 🏆 top_artists_overall│  │ 🎼 musical_characteristics│
+│  │ 📈 yearly_song_stats    │    │ 📀 artist_discography_gold│  │ _gold                     │
+│  │ 📅 release_trends_gold  │    │ 👤 comprehensive_artist  │  │ 🥁 tempo_time_signature   │
+│  │ 🌍 artist_location_summary│    │ _profile_gold           │  │ _analysis_gold            │
+│  └─────────────────────────┘    └─────────────────────┘  └──────────────────┘ │
 │                                                                              │
 │  Features:                                                                   │
-│  • Year-over-year trends    • Career span analysis    • Tempo distributions │
-│  • Geographic patterns      • Discography metrics     • Time signature stats│
-│  • Release productivity     • Musical consistency     • Style categorization│
+│  • Year-over-year trends    • Career span analysis    • Tempo distributions  │
+│  • Geographic patterns      • Discography metrics     • Time signature stats │
+│  • Release productivity     • Musical consistency     • Style categorization  d│
 │  • Temporal aggregations    • Artist profiling        • Audio feature analysis│
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -79,10 +79,10 @@ The pipeline processes 20 fields from the Million Song Dataset:
 
 ### 1. Bronze Layer: Raw Data Ingestion
 
-#### `songs_raw`
+#### `songs_raw_bronze`
 ```python
 @dlt.table
-def songs_raw():
+def songs_raw_bronze():
     """Streaming ingestion with Auto Loader"""
 ```
 - **Technology**: Databricks Auto Loader with cloudFiles
@@ -135,10 +135,10 @@ def songs_audio_features_silver():
 
 ### 3. Gold Layer: Advanced Analytics Views
 
-#### `top_artists_by_year`
+#### `top_artists_by_year_gold`
 ```python
 @dlt.table
-def top_artists_by_year():
+def top_artists_by_year_gold():
 ```
 - **Purpose**: Artists ranked by song count per year
 - **Fields**: artist_name, year, total_number_of_songs
@@ -152,8 +152,8 @@ def top_artists_by_year():
 
 #### `top_artists_overall`
 ```python
-@dlt.table
-def top_artists_overall():
+@dlt.table(name="top_artists_overall")
+def top_artists_overall_gold():
 ```
 - **Purpose**: All-time artist song counts and career-spanning productivity
 - **Fields**: artist_name, total_number_of_songs
@@ -167,8 +167,8 @@ def top_artists_overall():
 
 #### `yearly_song_stats`
 ```python
-@dlt.table
-def yearly_song_stats():
+@dlt.table(name="yearly_song_stats")
+def yearly_song_stats_gold():
 ```
 - **Purpose**: Year-over-year summary statistics combining metadata and audio features
 - **Fields**: year, song_count, avg_duration_seconds, max/min_duration, avg_tempo_bpm, median_tempo_bpm
@@ -182,8 +182,8 @@ def yearly_song_stats():
 
 #### `artist_location_summary`
 ```python
-@dlt.table
-def artist_location_summary():
+@dlt.table(name="artist_location_summary")
+def artist_location_summary_gold():
 ```
 - **Purpose**: Geographic distribution of musical output with location-based characteristics
 - **Fields**: location, songs_from_location, avg_duration_seconds, avg_tempo_bpm
@@ -197,7 +197,7 @@ def artist_location_summary():
 
 #### `release_trends_gold`
 ```python
-@dlt.table
+@dlt.table(name="release_trends_gold")
 def release_trends_gold():
 ```
 - **Purpose**: Release patterns, temporal analysis, and album productivity metrics
@@ -212,7 +212,7 @@ def release_trends_gold():
 
 #### `artist_discography_gold`
 ```python
-@dlt.table
+@dlt.table(name="artist_discography_gold")
 def artist_discography_gold():
 ```
 - **Purpose**: Comprehensive artist catalog analysis with career metrics
@@ -227,7 +227,7 @@ def artist_discography_gold():
 
 #### `musical_characteristics_gold`
 ```python
-@dlt.table
+@dlt.table(name="musical_characteristics_gold")
 def musical_characteristics_gold():
 ```
 - **Purpose**: Audio feature distributions and musical style categorization
@@ -242,7 +242,7 @@ def musical_characteristics_gold():
 
 #### `tempo_time_signature_analysis_gold`
 ```python
-@dlt.table
+@dlt.table(name="tempo_time_signature_analysis_gold")
 def tempo_time_signature_analysis_gold():
 ```
 - **Purpose**: Deep analysis of tempo and time signature relationships with statistical distributions
@@ -257,7 +257,7 @@ def tempo_time_signature_analysis_gold():
 
 #### `comprehensive_artist_profile_gold`
 ```python
-@dlt.table
+@dlt.table(name="comprehensive_artist_profile_gold")
 def comprehensive_artist_profile_gold():
 ```
 - **Purpose**: Combined artist analysis merging discography and musical style characteristics

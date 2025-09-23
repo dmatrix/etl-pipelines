@@ -49,12 +49,11 @@ schema = StructType(
 # Raw ingestion table - Bronze layer
 # -----------------------------------------------------------
 @dlt.table(
-    comment=(
+
         name="songs_raw_bronze",
-        "Raw data from a subset of the Million Song Dataset; a collection "
+        comment="Raw data from a subset of the Million Song Dataset; a collection "
         "of features and metadata for contemporary music tracks. Processed via Lakeflow Declarative Pipelines."
     )
-)
 def songs_raw_bronze():
     """Ingest new CSV files as they arrive with Auto Loader."""
     return (

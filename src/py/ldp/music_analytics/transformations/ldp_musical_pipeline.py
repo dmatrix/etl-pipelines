@@ -98,6 +98,7 @@ def get_prepared_songs_data():
 @dlt.expect("valid_artist_name_metadata", "artist_name IS NOT NULL AND trim(artist_name) != ''")
 @dlt.expect("valid_release_info", "release IS NOT NULL AND trim(release) != ''")
 @dlt.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
+@dlt.expect("valid_artist_location", "artist_location IS NULL OR trim(artist_location) != ''")
 def songs_metadata_silver():
     """Silver table focused on song metadata, releases, and temporal information."""
     prepared_data = get_prepared_songs_data()
@@ -107,6 +108,7 @@ def songs_metadata_silver():
             "song_title",
             "artist_name",
             "artist_id",
+            "artist_location",
             "release",
             "year",
             "duration"
@@ -230,9 +232,13 @@ def yearly_song_stats_gold():
     name="artist_location_summary_gold",
     comment="Song counts and average attributes by artist location using Lakeflow Declarative Pipelines."
 )
+@dlt.expect("valid_location_summary", "location IS NOT NULL AND trim(location) != ''")
+@dlt.expect("positive_song_count", "songs_from_location > 0")
+@dlt.expect("positive_artist_count", "unique_artists_from_location > 0")
+@dlt.expect("reasonable_duration_location", "avg_duration_seconds > 0 AND avg_duration_seconds < 3600")
 def artist_location_summary_gold():
-    # Use the helper function to get location data (since it's not in our silver tables)
-    df = get_prepared_songs_data()
+    """Analyze geographic distribution of musical output using properly validated silver layer data."""
+    df = dlt.read("songs_metadata_silver")
 
     result = (df
         .withColumn("location",
@@ -241,7 +247,7 @@ def artist_location_summary_gold():
         .agg(
             F.count("*").alias("songs_from_location"),
             F.avg("duration").alias("avg_duration_seconds"),
-            F.avg("tempo").alias("avg_tempo_bpm")
+            F.countDistinct("artist_name").alias("unique_artists_from_location")
         )
         .orderBy(F.desc("songs_from_location")))
 

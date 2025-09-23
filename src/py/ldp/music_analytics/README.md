@@ -150,9 +150,9 @@ def top_artists_by_year_gold():
 2. "Which years saw the highest number of releases from top artists?"
 3. "How did artist productivity change during different music eras?"
 
-#### `top_artists_overall`
+#### `top_artists_overall_gold`
 ```python
-@dlt.table(name="top_artists_overall")
+@dlt.table(name="top_artists_overall_gold")
 def top_artists_overall_gold():
 ```
 - **Purpose**: All-time artist song counts and career-spanning productivity
@@ -165,9 +165,9 @@ def top_artists_overall_gold():
 2. "How many songs separate the most prolific artist from the 50th most prolific?"
 3. "What percentage of total songs do the top 100 artists represent?"
 
-#### `yearly_song_stats`
+#### `yearly_song_stats_gold`
 ```python
-@dlt.table(name="yearly_song_stats")
+@dlt.table(name="yearly_song_stats_gold")
 def yearly_song_stats_gold():
 ```
 - **Purpose**: Year-over-year summary statistics combining metadata and audio features
@@ -180,9 +180,9 @@ def yearly_song_stats_gold():
 2. "Which year had the fastest average tempo and what was the median BPM?"
 3. "In which decades did song production volume peak and decline?"
 
-#### `artist_location_summary`
+#### `artist_location_summary_gold`
 ```python
-@dlt.table(name="artist_location_summary")
+@dlt.table(name="artist_location_summary_gold")
 def artist_location_summary_gold():
 ```
 - **Purpose**: Geographic distribution of musical output with location-based characteristics

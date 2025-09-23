@@ -50,6 +50,7 @@ schema = StructType(
 # -----------------------------------------------------------
 @dlt.table(
     comment=(
+        name="songs_raw_bronze",
         "Raw data from a subset of the Million Song Dataset; a collection "
         "of features and metadata for contemporary music tracks. Processed via Lakeflow Declarative Pipelines."
     )
@@ -86,10 +87,11 @@ def get_prepared_songs_data():
     )
 
 # -----------------------------------------------------------
-# Silver Layer - Specialized Tables
+# 1. Silver Layer - Specialized Tables
 # -----------------------------------------------------------
 
 @dlt.table(
+    name="songs_metadata_silver",
     comment="Song metadata and release information - focused on temporal and release data."
 )
 @dlt.expect("valid_release_year", "year > 1900 AND year <= 2030")
@@ -113,7 +115,11 @@ def songs_metadata_silver():
         .filter(F.col("year").isNotNull() & (F.col("year") > 0))
     )
 
+# -----------------------------------------------------------
+# 2. Silver Layer - Specialized Tables
+# -----------------------------------------------------------
 @dlt.table(
+    name="songs_audio_features_silver",
     comment="Song audio features and musical characteristics - focused on tempo, rhythm and musical analysis."
 )
 @dlt.expect("valid_tempo_range", "tempo > 40 AND tempo < 250")
@@ -144,12 +150,12 @@ def songs_audio_features_silver():
 # -----------------------------------------------------------
 # 1. Aggregated Gold layer view: Top artists per year
 # -----------------------------------------------------------
-@dlt.table(
-    comment=(
-        "A table summarizing counts of songs released by the artists "
+@dlt.table(  
+        name="top_artists_by_year_gold",
+        comment="A table summarizing counts of songs released by the artists "
         "who released the most songs each year."
     )
-)
+
 def top_artists_by_year_gold():
     return (
         dlt.read("songs_metadata_silver")
@@ -170,7 +176,7 @@ from pyspark.sql.window import Window
 # 2. Aggregated Gold layer view: Top artists across the entire catalogue
 # ---------------------------------------------------------------------------
 @dlt.table(
-    name="top_artists_overall",
+    name="top_artists_overall_gold",
     comment="All-time count of songs released by each artist via Lakeflow Declarative Pipelines."
 )
 def top_artists_overall_gold():
@@ -187,7 +193,7 @@ def top_artists_overall_gold():
 # 3. Aggregated Gold layer view: Year-over-year song-level summary statistics
 # ---------------------------------------------------------------------------
 @dlt.table(
-    name="yearly_song_stats",
+    name="yearly_song_stats_gold",
     comment="Year-over-year summary statistics for released songs processed by Lakeflow Declarative Pipelines."
 )
 def yearly_song_stats_gold():
@@ -222,7 +228,7 @@ def yearly_song_stats_gold():
 # 4. Aggregated Gold layer view: Location-level song statistics
 # ---------------------------------------------------------------------------
 @dlt.table(
-    name="artist_location_summary",
+    name="artist_location_summary_gold",
     comment="Song counts and average attributes by artist location using Lakeflow Declarative Pipelines."
 )
 def artist_location_summary_gold():

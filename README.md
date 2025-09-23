@@ -140,7 +140,7 @@ cd src/py/ldp/music_analytics
 cat README.md
 
 # Deploy to Databricks workspace (requires Databricks environment)
-# See transformations/dlt_songs_pipeline.py for implementation
+# See transformations/ldp_musical_pipeline.py for implementation
 ```
 
 ## 🎯 Learning Objectives

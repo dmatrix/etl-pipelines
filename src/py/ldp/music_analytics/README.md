@@ -293,7 +293,7 @@ def comprehensive_artist_profile_gold():
 ```
 src/py/ldp/music_analytics/
 ├── transformations/
-│   └── dlt_songs_pipeline.py       # Main pipeline definition
+│   └── ldp_musical_pipeline.py     # Main pipeline definition
 └── README.md                        # This documentation
 ```
 

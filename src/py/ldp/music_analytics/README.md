@@ -4,6 +4,14 @@
 
 This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation for processing and analyzing the Million Song Dataset. The pipeline demonstrates modern data engineering patterns using declarative transformations with streaming data ingestion and comprehensive data quality validation.
 
+## Key Benefits of Lakeflow Declarative Pipelines
+
+1. **Simplified Development & Maintenance**: LDP uses declarative `@dlt.table` decorators that automatically handle complex orchestration, dependency management, and error recovery, reducing code complexity compared to traditional ETL frameworks.
+
+2. **Built-in Data Quality & Governance**: Native `@dlt.expect` decorators provide comprehensive data validation with automatic quarantine of bad records, detailed quality metrics, and lineage tracking without additional infrastructure setup.
+
+3. **Auto-scaling & Cost Optimization**: LDP automatically optimizes cluster sizing, manages incremental processing, orchestrartion, and execution order, helping reduce the costs by only sizing resources it needs for successful and efficient execution.
+
 ## Pipeline Architecture - Medallion Pattern
 
 ```

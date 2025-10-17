@@ -60,10 +60,27 @@ cat README.md
 ```
 
 ### Development and Testing Commands
-```bash
-# Run tests
-cd src/py/sdp && uv run pytest
 
+#### Running Tests
+```bash
+# Install dev dependencies (includes pytest)
+cd src/py/sdp && uv sync --extra dev
+
+# Run BrickFood tests (9 comprehensive tests for materialized views)
+cd src/py/sdp/brickfood && uv run pytest tests/ -v
+
+# Run tests with detailed output (shows query results)
+cd src/py/sdp/brickfood && uv run pytest -v -s
+
+# Run specific test function
+cd src/py/sdp/brickfood && uv run pytest tests/test_materialized_views.py::test_query_orders_mv -v
+
+# Run tests matching a pattern
+cd src/py/sdp/brickfood && uv run pytest -k "orders" -v
+```
+
+#### Code Quality Tools
+```bash
 # Code formatting and linting
 cd src/py/sdp && uv run black .
 cd src/py/sdp && uv run flake8 .
@@ -71,10 +88,18 @@ cd src/py/sdp && uv run mypy .
 
 # Install package in development mode
 cd src/py/sdp && uv pip install -e .
+```
 
+#### Query and Analysis Scripts
+```bash
 # Use script commands defined in pyproject.toml
 sdp-brickfood    # Run BrickFood queries
 sdp-oil-rigs     # Run Oil Rigs queries
+
+# Or run directly from brickfood directory
+cd src/py/sdp/brickfood
+uv run python query_tables.py           # Query approved orders
+uv run python calculate_sales_tax.py     # Calculate sales tax and analytics
 ```
 
 ## Architecture Overview
@@ -102,9 +127,13 @@ sdp_pipeline_name/
 ├── transformations/           # Data transformation definitions
 │   ├── *.py                  # Python-based transformations with @sdp.materialized_view
 │   └── *.sql                 # SQL-based transformations
+├── tests/                    # Test suite for materialized views
+│   └── test_materialized_views.py  # Comprehensive tests for querying views
 ├── artifacts/utils/          # Pipeline-specific utilities
 ├── run_pipeline.sh           # Pipeline execution script
-└── *.py                      # Query and analysis modules
+├── query_tables.py           # Query and display data
+├── calculate_sales_tax.py    # Sales tax calculations (BrickFood)
+└── *.py                      # Other query and analysis modules
 ```
 
 #### LDP Pipeline Structure
@@ -154,11 +183,13 @@ ldp_pipeline_name/
 ## Important Dependencies
 
 ### SDP Dependencies
-- **PySpark 4.1.0.dev1**: Core Spark functionality with latest features
-- **pyspark-connect**: Spark Connect support for remote Spark clusters
+- **PySpark 4.1.0rc2**: Core Spark functionality with latest features (installed from local packages)
+- **pyspark-connect 4.1.0rc2**: Spark Connect support for remote Spark clusters (installed from local packages)
+- **Python 3.12+**: Required for the project
 - **faker**: Synthetic data generation for realistic test datasets
 - **plotly**: Data visualization capabilities for analytics
-- **pytest, black, flake8, mypy**: Development and code quality tools
+- **pytest, black, flake8, mypy**: Development and code quality tools (install with `uv sync --extra dev`)
+- **databricks-sdk**: Databricks SDK for platform integration
 
 ### LDP Dependencies
 - **Databricks Runtime**: Required for Lakeflow Declarative Pipelines
@@ -174,6 +205,16 @@ ldp_pipeline_name/
 - SQL transformations are standard .sql files processed by the SDP framework
 - Shared utilities are in `utils/` and loaded dynamically across pipelines
 
+### SDP Testing
+- Tests are organized under each pipeline's `tests/` directory (e.g., `brickfood/tests/`)
+- Test files use pytest framework with simple function-based tests (no classes)
+- BrickFood test suite includes 9 comprehensive tests:
+  - **Core Tests**: Query all materialized views (orders_mv, approved_orders_mv, fulfilled_orders_mv, pending_orders_mv)
+  - **Validation Tests**: Verify status distribution and column consistency
+  - **Analytics Tests**: Price range analysis, item-level statistics, date range validation
+- Run tests from pipeline directory: `cd brickfood && uv run pytest tests/ -v`
+- All tests validate data integrity, schema consistency, and analytical queries
+
 ### LDP Transformations
 - Use `@dlt.table` decorator to define materialized views
 - Apply `@dlt.expect` decorators for data quality validation
@@ -183,13 +224,46 @@ ldp_pipeline_name/
 ## Project Structure Overview
 ```
 etl-pipelines/
-├── src/py/
-│   ├── sdp/                  # Spark Declarative Pipelines
-│   │   ├── brickfood/        # E-commerce analytics
-│   │   ├── oil_rigs/         # IoT sensor monitoring
-│   │   └── utils/            # Shared utilities
-│   ├── ldp/                  # Lakeflow Declarative Pipelines
-│   │   └── music_analytics/  # Million Song Dataset processing
-│   └── generators/           # Cross-framework data generators
-└── README.md                 # Project overview and setup guide
+├── CLAUDE.md                 # Claude Code guidance (this file)
+├── README.md                 # Project overview and setup guide
+└── src/py/
+    ├── sdp/                  # Spark Declarative Pipelines
+    │   ├── pyproject.toml    # UV project configuration
+    │   ├── README.md         # Comprehensive SDP documentation
+    │   ├── brickfood/        # E-commerce analytics pipeline
+    │   │   ├── tests/        # Test suite with 9 tests for materialized views
+    │   │   ├── transformations/  # Orders materialized views (Python + SQL)
+    │   │   ├── query_tables.py   # Query approved orders
+    │   │   └── calculate_sales_tax.py  # Sales tax analytics
+    │   ├── oil_rigs/         # IoT sensor monitoring pipeline
+    │   └── utils/            # Shared utilities (order_gen_util, oil_gen_util)
+    ├── ldp/                  # Lakeflow Declarative Pipelines
+    │   └── music_analytics/  # Million Song Dataset processing
+    └── generators/           # Cross-framework data generators
 ```
+
+## BrickFood Pipeline Details
+
+The BrickFood pipeline demonstrates e-commerce order processing with comprehensive testing:
+
+### Materialized Views
+1. **orders_mv** - Base orders table (100 orders with random data)
+2. **approved_orders_mv** - Filtered view for approved orders
+3. **fulfilled_orders_mv** - Filtered view for fulfilled orders
+4. **pending_orders_mv** - Filtered view for pending orders
+
+### Analytics Scripts
+- **query_tables.py** - Queries and displays approved orders
+- **calculate_sales_tax.py** - Calculates 15% sales tax, provides:
+  - Individual order totals with tax
+  - Summary statistics (total sales, tax collected, grand total)
+  - Breakdown by product item
+
+### Test Suite (tests/test_materialized_views.py)
+All 9 tests pass successfully and cover:
+- Querying all 4 materialized views
+- Validating status distribution (sum of status views = total orders)
+- Verifying column consistency across views
+- Price range analytics (< $100, $100-$500, >= $500)
+- Product-level statistics and aggregations
+- Date range validation

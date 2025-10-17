@@ -75,6 +75,8 @@ sdp/
 │   │   ├── approved_orders_mv.sql  # Approved orders filter (SQL)
 │   │   ├── fulfilled_orders_mv.sql # Fulfilled orders filter (SQL)
 │   │   └── pending_orders_mv.sql   # Pending orders filter (SQL)
+│   ├── tests/                      # Test suite for materialized views
+│   │   └── test_materialized_views.py  # Tests for querying all views
 │   ├── query_tables.py             # Query and display order data
 │   ├── calculate_sales_tax.py      # Sales tax calculations and analytics
 │   ├── spark-warehouse/            # Generated Spark warehouse data
@@ -172,6 +174,116 @@ uv run sdp-test-oil-sensors         # Test oil sensor generation (multiple rigs)
 # Direct access to pipeline components
 uv run sdp-brickfood               # Query BrickFood tables
 uv run sdp-oil-rigs                # Query oil rig tables
+```
+
+## Running Tests
+
+The project includes comprehensive tests for querying and validating materialized views. Tests are organized within each pipeline directory.
+
+### Prerequisites for Testing
+
+Before running tests, ensure:
+1. **Dependencies are installed** (including dev dependencies):
+   ```bash
+   uv sync --extra dev
+   ```
+
+2. **Pipeline has been executed** to create materialized views:
+   ```bash
+   cd brickfood
+   ./run_pipeline.sh
+   ```
+
+### Running BrickFood Tests
+
+```bash
+# From the brickfood directory
+cd brickfood
+uv run pytest tests/ -v
+
+# Or simply
+cd brickfood
+uv run pytest -v
+
+# Run tests with detailed output (shows query results and data)
+cd brickfood
+uv run pytest -v -s
+```
+
+### Running Specific Tests
+
+```bash
+# Run only materialized view tests
+cd brickfood
+uv run pytest tests/test_materialized_views.py -v
+
+# Run a specific test function
+cd brickfood
+uv run pytest tests/test_materialized_views.py::test_query_orders_mv -v
+
+# Run tests matching a pattern
+cd brickfood
+uv run pytest -k "orders" -v
+```
+
+### Test Coverage
+
+The test suite includes **9 test functions** covering:
+
+#### Core Materialized View Tests
+- `test_query_orders_mv` - Queries base orders_mv and validates schema/data
+- `test_query_approved_orders_mv` - Validates approved orders filtering
+- `test_query_fulfilled_orders_mv` - Validates fulfilled orders filtering
+- `test_query_pending_orders_mv` - Validates pending orders filtering
+
+#### Data Validation Tests
+- `test_verify_status_distribution` - Ensures status views sum to total orders
+- `test_verify_column_consistency` - Validates consistent schema across all views
+
+#### Analytics Tests
+- `test_query_orders_by_price_range` - Analyzes price distribution (< $100, $100-$500, >= $500)
+- `test_query_orders_by_item` - Groups orders by product with statistics
+- `test_query_orders_by_date_range` - Validates date ranges
+
+### Expected Test Output
+
+```
+============================= test session starts ==============================
+collected 9 items
+
+tests/test_materialized_views.py::test_query_orders_mv PASSED           [ 11%]
+tests/test_materialized_views.py::test_query_approved_orders_mv PASSED  [ 22%]
+tests/test_materialized_views.py::test_query_fulfilled_orders_mv PASSED [ 33%]
+tests/test_materialized_views.py::test_query_pending_orders_mv PASSED   [ 44%]
+tests/test_materialized_views.py::test_verify_status_distribution PASSED [ 55%]
+tests/test_materialized_views.py::test_verify_column_consistency PASSED [ 66%]
+tests/test_materialized_views.py::test_query_orders_by_price_range PASSED [ 77%]
+tests/test_materialized_views.py::test_query_orders_by_item PASSED      [ 88%]
+tests/test_materialized_views.py::test_query_orders_by_date_range PASSED [100%]
+
+========================= 9 passed in 7.07s ============================
+```
+
+### Sample Test Output with Details
+
+When running with `-s` flag, tests show query results:
+
+```
+=== orders_mv Sample Data ===
++------------------------------------+----------+------+-------------+---------+------------+
+|order_id                            |order_item|price |items_ordered|status   |date_ordered|
++------------------------------------+----------+------+-------------+---------+------------+
+|067f85a9-b726-43f2-a318-fdaf974d0c5f|Board Game|923.22|7            |pending  |2025-09-25  |
+|8552e9db-0c10-4fe6-92d5-a0c950a0975a|Scooter   |905.52|6            |approved |2025-09-19  |
++------------------------------------+----------+------+-------------+---------+------------+
+Total rows: 100
+
+=== Status Distribution ===
+Total orders: 100
+Approved: 35
+Fulfilled: 29
+Pending: 36
+Sum: 100
 ```
 
 ## BrickFood E-commerce Pipeline

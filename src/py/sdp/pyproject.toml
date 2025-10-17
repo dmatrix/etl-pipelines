@@ -19,15 +19,15 @@ classifiers = [
 dependencies = [
     "faker>=37.6.0",
     "plotly>=6.3.0",
-    "pyspark==4.1.0rc2",
-    "pyspark-connect==4.1.0rc2",
+    "pyspark @ file:///Users/jules/pydist/pyspark-4.1.0rc2.tar.gz",
+    "pyspark-connect @ file:///Users/jules/pydist/pyspark_connect-4.1.0rc2.tar.gz",
     "databricks-sdk>=0.12.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/dmatrix/spark-misc"
-Repository = "https://github.com/dmatrix/spark-misc"
-Documentation = "https://github.com/dmatrix/spark-misc/tree/main/src/py/sdp"
+Homepage = "https://github.com/dmatrix/etl-pipelines"
+Repository = "https://github.com/dmatrix/etl-pipelines"
+Documentation = "https://github.com/dmatrix/etl-pipelines/tree/main/src/py/sdp"
 
 [project.optional-dependencies]
 dev = [

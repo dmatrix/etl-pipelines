@@ -1,4 +1,4 @@
-from pyspark import pipelines as sdp
+from pyspark import pipelines as dp
 from pyspark.sql import DataFrame
 import importlib.util
 import sys
@@ -15,7 +15,10 @@ sys.modules["order_gen_util"] = order_gen_util
 spec.loader.exec_module(order_gen_util)
 
 
-@sdp.materialized_view
+@dp.materialized_view(
+    name="orders_mv",
+    comment = "Materialized view that generates random order items using the utility function."
+)
 def orders_mv() -> DataFrame:
     """
     Materialized view that generates random order items using the utility function.

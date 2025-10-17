@@ -1,10 +1,11 @@
 from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, DateType
 import random
 from datetime import datetime, timedelta
 import uuid
 
-def create_random_order_items(num_items: int = 100) -> 'pyspark.sql.DataFrame':
+def create_random_order_items(num_items: int = 100) -> DataFrame:
     """
     Generates a DataFrame with random order items.
     

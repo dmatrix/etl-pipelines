@@ -3,7 +3,7 @@ name = "spark-declarative-pipelines-examples"
 version = "0.1.0"
 description = "Example implementations of Spark Declarative Pipelines (SDP) and LakeFlow Declarative Pipelines (LDP) with PySpark 4.1.0.dev1, featuring BrickFood e-commerce, Oil Rigs sensor monitoring, and Music Analytics use cases"
 readme = "SDP_README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 authors = [
     {name = "Jules S. Damji", email = "jules.damji@databricks.com"}
 ]
@@ -14,14 +14,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
     "faker>=37.6.0",
     "plotly>=6.3.0",
-    "pyspark==4.1.0.dev1",
-    "pyspark-connect==4.1.0.dev1",
+    "pyspark==4.1.0rc2",
+    "pyspark-connect==4.1.0rc2",
     "databricks-sdk>=0.12.0",
 ]
 

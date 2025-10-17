@@ -5,13 +5,12 @@ from pyspark.sql import DataFrame, SparkSession
 # Create by a previous run of Spark Declarative Pipelines (SDP) command line: spark-pipelines
 
 # Location of the Spark database has all the materialized views
-spark_db_location = "file:////Users/jules/git-repos/spark-misc/src/py/sc/sdp/brickfood/spark-warehouse/"
+spark_db_location = "file:///./spark-warehouse/"
 
 # Initialize Spark session with Hive support
 spark = (SparkSession.builder.appName("QueryOrders")
-         .config("spark.sql.warehouse.dir", spark_db_location)
-         .enableHiveSupport()
-         .getOrCreate())
+       .enableHiveSupport()    
+        .getOrCreate())
 
 # Function to query the materialized view and return a DataFrame
 # This function reads from the specified database and returns a DataFrame with order items.

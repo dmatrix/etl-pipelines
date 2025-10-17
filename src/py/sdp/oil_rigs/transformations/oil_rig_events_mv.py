@@ -1,4 +1,4 @@
-from pyspark import pipelines as sdp
+from pyspark import pipelines as dp
 from pyspark.sql import DataFrame
 import importlib.util
 import sys
@@ -15,7 +15,7 @@ sys.modules["oil_gen_util"] = oil_gen_util
 spec.loader.exec_module(oil_gen_util)
 
 
-@sdp.materialized_view
+@dp.materialized_view
 def permian_rig_mv() -> DataFrame:
     """
     Materialized view that generates Permian Basin oil rig sensor events.
@@ -27,7 +27,7 @@ def permian_rig_mv() -> DataFrame:
     return oil_gen_util.create_oil_rig_events_dataframe('permian_rig', start_date, num_events=100)
 
 
-@sdp.materialized_view
+@dp.materialized_view
 def eagle_ford_rig_mv() -> DataFrame:
     """
     Materialized view that generates Eagle Ford Shale oil rig sensor events.

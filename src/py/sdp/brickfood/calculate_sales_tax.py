@@ -5,11 +5,10 @@ from pyspark.sql.functions import col, round, sum
 # Run this script to compute 15% sales tax on total order amounts
 
 # Location of the Spark database has all the materialized views
-spark_db_location = "file:////Users/jules/git-repos/spark-misc/src/py/sc/sdp/brickfood/spark-warehouse/"
+spark_db_location = "file:///./spark-warehouse/"
 
 # Initialize Spark session with Hive support
 spark = (SparkSession.builder.appName("CalculateOrderTotalsAndTax")
-         .config("spark.sql.warehouse.dir", spark_db_location)
          .enableHiveSupport()
          .getOrCreate())
 

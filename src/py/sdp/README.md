@@ -17,7 +17,7 @@ Each project showcases different aspects of the SDP framework, from synthetic da
 
 ### Requirements
 
-1. **Python 3.11+**: Required for the project
+1. **Python 3.12+**: Required for the project
 2. **UV Package Manager**: For dependency management and virtual environments
 3. **Spark Declarative Pipelines CLI**: Required for running the pipelines (`spark-pipelines` command)
 

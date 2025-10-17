@@ -1,6 +1,5 @@
-
-definitions:
+name: brickfood
+storage: storage-root
+libraries:
   - glob:
-      include: transformations/**/*.py
-  - glob:
-      include: transformations/**/*.sql
+      include: transformations/**

@@ -177,7 +177,7 @@ def top_artists_by_year_gold():
         .groupBy("artist_name", "year")
         .count()
         .withColumnRenamed("count", "total_number_of_songs")
-        .sort(F.desc("total_number_of_songs"), F.desc("year")
+        .sort(F.desc("total_number_of_songs"), F.desc("year"))
 
     )
     

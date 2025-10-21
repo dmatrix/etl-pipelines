@@ -12,6 +12,24 @@ This directory contains a **Spark Declarative Pipeline (SDP)** implementation fo
 
 3. **Auto-scaling & Cost Optimization**: SDP automatically optimizes cluster sizing, manages incremental processing, orchestrartion, and execution order, helping reduce the costs by only sizing resources it needs for successful and efficient execution.
 
+## Table of Contents
+
+- [Pipeline Architecture - Medallion Pattern](#pipeline-architecture---medallion-pattern)
+- [Pipeline Visualization](#pipeline-visualization)
+- [Data Schema](#data-schema)
+- [Pipeline Components](#pipeline-components)
+  - [Bronze Layer: Raw Data Ingestion](#1-bronze-layer-raw-data-ingestion)
+  - [Silver Layer: Specialized Data Preparation](#2-silver-layer-specialized-data-preparation--quality)
+  - [Gold Layer: Advanced Analytics Views](#3-gold-layer-advanced-analytics-views)
+- [Gold Tables Query Guide](#gold-tables-query-guide) ⭐
+  - [Temporal Analytics Tables](#-temporal-analytics-tables)
+  - [Artist Analytics Tables](#-artist-analytics-tables)
+  - [Musical Analysis Tables](#-musical-analysis-tables)
+- [Key Features](#key-features)
+- [File Structure](#file-structure)
+- [Usage](#usage)
+- [Technology Stack](#technology-stack)
+
 ## Pipeline Architecture - Medallion Pattern
 
 ```
@@ -295,6 +313,106 @@ def comprehensive_artist_profile_gold():
 - Medallion pattern for clear data progression
 - Separation of concerns: raw → cleaned → analytics
 - Optimized for both streaming and batch workloads
+
+## Gold Tables Query Guide
+
+This section provides a comprehensive list of all gold layer tables with example natural language queries you can ask to explore the Million Song Dataset.
+
+### 📊 Temporal Analytics Tables
+
+#### `top_artists_by_year_gold`
+**What it contains:** Artists ranked by song count per year
+
+**Example queries to ask:**
+- "Who was the most prolific artist in 1985 and how many songs did they release?"
+- "Which years saw the highest number of releases from top artists?"
+- "How did artist productivity change during different music eras?"
+- "Show me the top 5 artists by song count for each year in the 1990s"
+- "Which artist had the most songs released in the 2000s?"
+
+#### `yearly_song_stats_gold`
+**What it contains:** Year-over-year summary statistics combining metadata and audio features
+
+**Example queries to ask:**
+- "How has the average song duration evolved from the 1960s to the 2000s?"
+- "Which year had the fastest average tempo and what was the median BPM?"
+- "In which decades did song production volume peak and decline?"
+- "What was the shortest and longest average song duration by year?"
+- "Show me the trend of median tempo across all years"
+
+#### `release_trends_gold`
+**What it contains:** Release patterns, temporal analysis, and album productivity metrics
+
+**Example queries to ask:**
+- "Which years had the highest ratio of songs per release (indicating longer albums)?"
+- "How has the number of active artists changed over different decades?"
+- "What's the relationship between total song releases and unique album releases by year?"
+- "In which year were the most unique releases published?"
+- "How has album length (songs per release) changed over time?"
+
+#### `artist_location_summary_gold`
+**What it contains:** Geographic distribution of musical output with location-based characteristics
+
+**Example queries to ask:**
+- "Which cities or regions produce the most music and what are their typical tempos?"
+- "Do artists from certain geographic locations tend to create longer or shorter songs?"
+- "How does the average tempo vary between different countries or regions?"
+- "Which location has the most unique artists?"
+- "Compare the musical output of New York vs Los Angeles"
+
+### 🎨 Artist Analytics Tables
+
+#### `top_artists_overall_gold`
+**What it contains:** All-time artist song counts and career-spanning productivity
+
+**Example queries to ask:**
+- "Which 10 artists have the largest catalogs in the entire dataset?"
+- "How many songs separate the most prolific artist from the 50th most prolific?"
+- "What percentage of total songs do the top 100 artists represent?"
+- "Who are the top 25 most productive artists of all time?"
+- "Show me artists with more than 100 songs in their catalog"
+
+#### `artist_discography_gold`
+**What it contains:** Comprehensive artist catalog analysis with career metrics
+
+**Example queries to ask:**
+- "Which artists had the longest careers and maintained consistent output?"
+- "What's the average number of songs per album for the most prolific artists?"
+- "Who has the largest total catalog duration and how many hours of music is that?"
+- "Which artist has the highest songs-per-year productivity rate?"
+- "Show me artists with career spans longer than 30 years"
+
+#### `comprehensive_artist_profile_gold`
+**What it contains:** Combined artist analysis merging discography and musical style characteristics
+
+**Example queries to ask:**
+- "Which artists show the most musical diversity in their tempo and time signature choices?"
+- "Who are the most musically consistent artists versus those with the most experimental styles?"
+- "What's the relationship between career span and musical style diversity for top artists?"
+- "Which artists have the highest tempo variation in their catalog?"
+- "Show me artists labeled as 'Very Consistent' with 50+ songs"
+
+### 🎵 Musical Analysis Tables
+
+#### `musical_characteristics_gold`
+**What it contains:** Audio feature distributions and musical style categorization
+
+**Example queries to ask:**
+- "What's the most common combination of tempo category and time signature?"
+- "Do fast tempo songs tend to be shorter or longer in duration?"
+- "Which time signatures are most associated with very fast tempo music?"
+- "How many songs are categorized as 'Slow' tempo with short duration?"
+- "What's the distribution of songs across tempo categories?"
+
+#### `tempo_time_signature_analysis_gold`
+**What it contains:** Deep analysis of tempo and time signature relationships with statistical distributions
+
+**Example queries to ask:**
+- "Which time signature has the widest tempo range and highest tempo variability?"
+- "What are the tempo quartiles for the most popular time signatures?"
+- "How does tempo consistency vary between different rhythmic patterns?"
+- "What's the most common time signature and its average tempo?"
+- "Show me time signatures ranked by popularity with their tempo characteristics"
 
 ## File Structure
 

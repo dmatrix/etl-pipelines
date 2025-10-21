@@ -1,23 +1,23 @@
-# Music Analytics - Databricks Lakeflow Declarative Pipeline
+# Music Analytics - Databricks Spark Declarative Pipeline
 
 ## Overview
 
-This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation for processing and analyzing the Million Song Dataset. The pipeline demonstrates modern data engineering patterns using declarative transformations with streaming data ingestion and comprehensive data quality validation.
+This directory contains a **Spark Declarative Pipeline (SDP)** implementation for processing and analyzing the Million Song Dataset. The pipeline demonstrates modern data engineering patterns using declarative transformations with streaming data ingestion and comprehensive data quality validation.
 
-## Key Benefits of Lakeflow Declarative Pipelines
+## Key Benefits of Spark Declarative Pipelines
 
-1. **Simplified Development & Maintenance**: LDP uses declarative `@dlt.table` decorators that automatically handle complex orchestration, dependency management, and error recovery, reducing code complexity compared to traditional ETL frameworks.
+1. **Simplified Development & Maintenance**: SDP uses declarative `@dp.table` decorators that automatically handle complex orchestration, dependency management, and error recovery, reducing code complexity compared to traditional ETL frameworks.
 
-2. **Built-in Data Quality & Governance**: Native `@dlt.expect` decorators provide comprehensive data validation with automatic quarantine of bad records, detailed quality metrics, and lineage tracking without additional infrastructure setup.
+2. **Built-in Data Quality & Governance**: Native `@dp.expect` decorators provide comprehensive data validation with automatic quarantine of bad records, detailed quality metrics, and lineage tracking without additional infrastructure setup.
 
-3. **Auto-scaling & Cost Optimization**: LDP automatically optimizes cluster sizing, manages incremental processing, orchestrartion, and execution order, helping reduce the costs by only sizing resources it needs for successful and efficient execution.
+3. **Auto-scaling & Cost Optimization**: SDP automatically optimizes cluster sizing, manages incremental processing, orchestrartion, and execution order, helping reduce the costs by only sizing resources it needs for successful and efficient execution.
 
 ## Pipeline Architecture - Medallion Pattern
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           MEDALLION ARCHITECTURE                            │
-│                      Lakeflow Declarative Pipelines                         │
+│                      Spark Declarative Pipelines                            │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 🥉 BRONZE LAYER (Raw Data)
@@ -40,7 +40,7 @@ This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation
 │  │ • Release & temporal data   │   │ • Musical characteristics       │  │
 │  │ • Artist discography info   │   │ • Tempo & rhythm analysis       │  │
 │  │ • Duration & year metadata  │   │ • Time signature patterns       │  │
-│  │ • @dlt.expect validations:  │   │ • @dlt.expect validations:      │  │
+│  │ • @dp.expect validations:   │   │ • @dp.expect validations:       │  │
 │  │   ✓ Release years 1900-2030 │   │   ✓ Tempo range 40-250 BPM      │  │
 │  │   ✓ Non-null titles/artists │   │   ✓ Time signatures 1-12        │  │
 │  │   ✓ Duration 10-3600 seconds│   │   ✓ Reasonable song durations   │  │
@@ -70,7 +70,7 @@ This directory contains a **Lakeflow Declarative Pipeline (LDP)** implementation
 
 ![Million Song Dataset Pipeline](images/dlt_songs_pipeline.png)
 
-*Figure 1: Lakeflow Declarative Pipeline flow for the Million Song Dataset showing the medallion pattern data flow from raw ingestion through analytics-ready gold layer views in the Datarbicks Platform*
+*Figure 1: Spark Declarative Pipeline flow for the Million Song Dataset showing the medallion pattern data flow from raw ingestion through analytics-ready gold layer views in the Datarbicks Platform*
 
 ## Data Schema
 
@@ -89,7 +89,7 @@ The pipeline processes 20 fields from the Million Song Dataset:
 
 #### `songs_raw_bronze`
 ```python
-@dlt.table
+@dp.table
 def songs_raw_bronze():
     """Streaming ingestion with Auto Loader"""
 ```
@@ -103,12 +103,12 @@ def songs_raw_bronze():
 
 #### `songs_metadata_silver`
 ```python
-@dlt.table
-@dlt.expect("valid_release_year", "year > 1900 AND year <= 2030")
-@dlt.expect("valid_song_title_metadata", "song_title IS NOT NULL AND trim(song_title) != ''")
-@dlt.expect("valid_artist_name_metadata", "artist_name IS NOT NULL AND trim(artist_name) != ''")
-@dlt.expect("valid_release_info", "release IS NOT NULL AND trim(release) != ''")
-@dlt.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
+@dp.table
+@dp.expect("valid_release_year", "year > 1900 AND year <= 2030")
+@dp.expect("valid_song_title_metadata", "song_title IS NOT NULL AND trim(song_title) != ''")
+@dp.expect("valid_artist_name_metadata", "artist_name IS NOT NULL AND trim(artist_name) != ''")
+@dp.expect("valid_release_info", "release IS NOT NULL AND trim(release) != ''")
+@dp.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
 def songs_metadata_silver():
 ```
 - **Focus**: Song metadata, releases, and temporal information
@@ -123,12 +123,12 @@ def songs_metadata_silver():
 
 #### `songs_audio_features_silver`
 ```python
-@dlt.table
-@dlt.expect("valid_tempo_range", "tempo > 40 AND tempo < 250")
-@dlt.expect("valid_time_signature_range", "time_signature >= 1 AND time_signature <= 12")
-@dlt.expect("valid_song_title_audio", "song_title IS NOT NULL AND trim(song_title) != ''")
-@dlt.expect("valid_artist_name_audio", "artist_name IS NOT NULL AND trim(artist_name) != ''")
-@dlt.expect("reasonable_duration_audio", "duration > 10 AND duration < 3600")
+@dp.table
+@dp.expect("valid_tempo_range", "tempo > 40 AND tempo < 250")
+@dp.expect("valid_time_signature_range", "time_signature >= 1 AND time_signature <= 12")
+@dp.expect("valid_song_title_audio", "song_title IS NOT NULL AND trim(song_title) != ''")
+@dp.expect("valid_artist_name_audio", "artist_name IS NOT NULL AND trim(artist_name) != ''")
+@dp.expect("reasonable_duration_audio", "duration > 10 AND duration < 3600")
 def songs_audio_features_silver():
 ```
 - **Focus**: Musical characteristics and audio analysis features
@@ -145,7 +145,7 @@ def songs_audio_features_silver():
 
 #### `top_artists_by_year_gold`
 ```python
-@dlt.table
+@dp.table
 def top_artists_by_year_gold():
 ```
 - **Purpose**: Artists ranked by song count per year
@@ -160,7 +160,7 @@ def top_artists_by_year_gold():
 
 #### `top_artists_overall_gold`
 ```python
-@dlt.table(name="top_artists_overall_gold")
+@dp.table(name="top_artists_overall_gold")
 def top_artists_overall_gold():
 ```
 - **Purpose**: All-time artist song counts and career-spanning productivity
@@ -175,7 +175,7 @@ def top_artists_overall_gold():
 
 #### `yearly_song_stats_gold`
 ```python
-@dlt.table(name="yearly_song_stats_gold")
+@dp.table(name="yearly_song_stats_gold")
 def yearly_song_stats_gold():
 ```
 - **Purpose**: Year-over-year summary statistics combining metadata and audio features
@@ -190,7 +190,7 @@ def yearly_song_stats_gold():
 
 #### `artist_location_summary_gold`
 ```python
-@dlt.table(name="artist_location_summary_gold")
+@dp.table(name="artist_location_summary_gold")
 def artist_location_summary_gold():
 ```
 - **Purpose**: Geographic distribution of musical output with location-based characteristics
@@ -205,7 +205,7 @@ def artist_location_summary_gold():
 
 #### `release_trends_gold`
 ```python
-@dlt.table(name="release_trends_gold")
+@dp.table(name="release_trends_gold")
 def release_trends_gold():
 ```
 - **Purpose**: Release patterns, temporal analysis, and album productivity metrics
@@ -220,7 +220,7 @@ def release_trends_gold():
 
 #### `artist_discography_gold`
 ```python
-@dlt.table(name="artist_discography_gold")
+@dp.table(name="artist_discography_gold")
 def artist_discography_gold():
 ```
 - **Purpose**: Comprehensive artist catalog analysis with career metrics
@@ -235,7 +235,7 @@ def artist_discography_gold():
 
 #### `musical_characteristics_gold`
 ```python
-@dlt.table(name="musical_characteristics_gold")
+@dp.table(name="musical_characteristics_gold")
 def musical_characteristics_gold():
 ```
 - **Purpose**: Audio feature distributions and musical style categorization
@@ -250,7 +250,7 @@ def musical_characteristics_gold():
 
 #### `tempo_time_signature_analysis_gold`
 ```python
-@dlt.table(name="tempo_time_signature_analysis_gold")
+@dp.table(name="tempo_time_signature_analysis_gold")
 def tempo_time_signature_analysis_gold():
 ```
 - **Purpose**: Deep analysis of tempo and time signature relationships with statistical distributions
@@ -265,7 +265,7 @@ def tempo_time_signature_analysis_gold():
 
 #### `comprehensive_artist_profile_gold`
 ```python
-@dlt.table(name="comprehensive_artist_profile_gold")
+@dp.table(name="comprehensive_artist_profile_gold")
 def comprehensive_artist_profile_gold():
 ```
 - **Purpose**: Combined artist analysis merging discography and musical style characteristics
@@ -280,14 +280,14 @@ def comprehensive_artist_profile_gold():
 
 ## Key Features
 
-### Lakeflow Declarative Pipelines Pattern
-- **Declarative**: `@dlt.table` decorators for transformation definition
+### Spark Declarative Pipelines Pattern
+- **Declarative**: `@dp.table` decorators for transformation definition
 - **Quality-First**: Built-in data expectations and validation
 - **Streaming**: Real-time processing with Auto Loader
 - **Lineage**: Automatic dependency tracking between tables
 
 ### Data Quality & Validation
-- Comprehensive `@dlt.expect` rules for data integrity
+- Comprehensive `@dp.expect` rules for data integrity
 - Automatic handling of data quality violations
 - Schema enforcement at ingestion
 
@@ -299,7 +299,7 @@ def comprehensive_artist_profile_gold():
 ## File Structure
 
 ```
-src/py/ldp/music_analytics/
+src/py/sdp2dbx/music_analytics/
 ├── transformations/
 │   └── ldp_musical_pipeline.py     # Main pipeline definition
 └── README.md                        # This documentation
@@ -307,12 +307,12 @@ src/py/ldp/music_analytics/
 
 ## Usage
 
-This pipeline is designed to run in a Databricks environment with Delta Live Tables support. The transformations automatically create a dependency graph ensuring proper execution order from bronze through gold layers.
+This pipeline is designed to run in a Databricks environment with Spark Declarative Pipelines support. The transformations automatically create a dependency graph ensuring proper execution order from bronze through gold layers.
 
 ## Technology Stack
 
 - **Databricks**: Unified analytics platform
-- **Delta Live Tables**: Declarative pipeline framework
+- **Spark Declarative Pipelines**: Declarative pipeline framework
 - **PySpark**: Distributed data processing
 - **Auto Loader**: Streaming file ingestion
 - **Million Song Dataset**: Rich music metadata and audio features

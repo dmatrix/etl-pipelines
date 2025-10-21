@@ -172,7 +172,7 @@ sdp2dbx_pipeline_name/
 - **Hybrid SQL/Python**: SQL files and Python functions seamlessly integrated in transformation pipeline
 - **Configuration-driven Discovery**: `pipeline.yml` uses glob patterns to auto-discover transformation files
 
-#### SDP2DBX Patterns
+#### SDP on Databricks  Patterns
 - **Medallion Architecture**: Bronze/Silver/Gold progression with clear data lineage and specialized silver tables
 - **Data Quality Framework**: Comprehensive `@dp.expect` decorators for validation rules (tempo ranges, year validation, duration checks)
 - **Streaming Ingestion**: Auto Loader for incremental data processing with schema enforcement
@@ -215,7 +215,7 @@ sdp2dbx_pipeline_name/
 - Run tests from pipeline directory: `cd brickfood && uv run pytest tests/ -v`
 - All tests validate data integrity, schema consistency, and analytical queries
 
-### SDP2DBX Transformations
+### SDP on Databricks Transformations
 - Use `@dp.table` decorator to define materialized views
 - Apply `@dp.expect` decorators for data quality validation
 - Leverage `dp.read()` for referencing upstream tables

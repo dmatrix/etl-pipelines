@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. The project showcases both **Spark Declarative Pipelines (SDP)** for analytics workloads and **Lakeflow Declarative Pipelines (LDP)** for streaming data processing:
+This repository contains modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. The project showcases both **Spark Declarative Pipelines (SDP)** for analytics workloads and **Spark Declarative Pipelines (SDP2DBX)** for streaming data processing:
 
 ### SDP Examples (src/py/sdp/)
 1. **BrickFood** (`src/py/sdp/brickfood/`) - E-commerce order processing and analytics system
 2. **Oil Rigs** (`src/py/sdp/oil_rigs/`) - Industrial IoT sensor monitoring and analysis system
 
-### LDP Examples (src/py/ldp/)
-1. **Music Analytics** (`src/py/ldp/music_analytics/`) - Million Song Dataset processing with medallion architecture
+### SDP2DBX Examples (src/py/sdp2dbx/)
+1. **Music Analytics** (`src/py/sdp2dbx/music_analytics/`) - Million Song Dataset processing with medallion architecture
 
 The project is structured as a uv-managed Python package with virtual environment isolation and modern dependency management.
 
@@ -47,10 +47,10 @@ cd src/py/sdp && python main.py oil-rigs
 spark-pipelines run --conf spark.sql.catalogImplementation=hive --conf spark.sql.warehouse.dir=spark-warehouse
 ```
 
-#### LDP Pipelines
+#### SDP2DBX Pipelines
 ```bash
-# Music Analytics pipeline (Databricks Lakeflow Declarative Pipelines)
-cd src/py/ldp/music_analytics
+# Music Analytics pipeline (Databricks Spark Declarative Pipelines)
+cd src/py/sdp2dbx/music_analytics
 
 # View pipeline documentation and architecture
 cat README.md
@@ -112,10 +112,10 @@ uv run python calculate_sales_tax.py     # Calculate sales tax and analytics
 - **Pipeline Configuration**: YAML files (`pipeline.yml`) define transformation discovery patterns using glob patterns
 - **Storage**: Local Spark warehouse with Hive-compatible storage
 
-#### LDP (Lakeflow Declarative Pipelines)
+#### SDP2DBX (Spark Declarative Pipelines for Databricks)
 - **Framework**: Databricks native declarative pipeline framework (formerly Delta Live Tables)
 - **Medallion Architecture**: Bronze/Silver/Gold data layers with automatic lineage
-- **Data Quality**: Built-in expectations and validation with `@dlt.expect`
+- **Data Quality**: Built-in expectations and validation with `@dp.expect`
 - **Storage**: Delta tables with Unity Catalog integration
 
 ### Project Structure Patterns
@@ -136,13 +136,13 @@ sdp_pipeline_name/
 └── *.py                      # Other query and analysis modules
 ```
 
-#### LDP Pipeline Structure
+#### SDP2DBX Pipeline Structure
 ```
-ldp_pipeline_name/
+sdp2dbx_pipeline_name/
 ├── README.md                 # Comprehensive pipeline documentation
 ├── images/                   # Pipeline visualization assets
-└── transformations/          # LDP transformation definitions
-    └── *.py                  # Python files with @dlt.table decorators
+└── transformations/          # SDP2DBX transformation definitions
+    └── *.py                  # Python files with @dp.table decorators
 ```
 
 ### Data Flow Architecture
@@ -153,7 +153,7 @@ ldp_pipeline_name/
 3. **Storage**: Data persists to Hive-compatible spark-warehouse directory
 4. **Analytics**: Query modules provide data access and visualization capabilities
 
-#### LDP Data Flow (Music Analytics)
+#### SDP2DBX Data Flow (Music Analytics)
 1. **Bronze Layer**: Raw data ingestion from Million Song Dataset with Auto Loader (`songs_raw`)
 2. **Silver Layer**: Specialized data preparation with comprehensive validation
    - `songs_metadata_silver`: Release and temporal information with year/duration validation
@@ -172,11 +172,11 @@ ldp_pipeline_name/
 - **Hybrid SQL/Python**: SQL files and Python functions seamlessly integrated in transformation pipeline
 - **Configuration-driven Discovery**: `pipeline.yml` uses glob patterns to auto-discover transformation files
 
-#### LDP Patterns
+#### SDP2DBX Patterns
 - **Medallion Architecture**: Bronze/Silver/Gold progression with clear data lineage and specialized silver tables
-- **Data Quality Framework**: Comprehensive `@dlt.expect` decorators for validation rules (tempo ranges, year validation, duration checks)
+- **Data Quality Framework**: Comprehensive `@dp.expect` decorators for validation rules (tempo ranges, year validation, duration checks)
 - **Streaming Ingestion**: Auto Loader for incremental data processing with schema enforcement
-- **Declarative Definitions**: `@dlt.table` decorators for transformation specification with automatic dependency resolution
+- **Declarative Definitions**: `@dp.table` decorators for transformation specification with automatic dependency resolution
 - **Specialized Silver Tables**: Domain-focused tables (`metadata_silver`, `audio_features_silver`) for targeted analytics
 - **Advanced Gold Analytics**: Multi-dimensional analysis tables combining temporal, artist, and musical perspectives
 
@@ -191,9 +191,9 @@ ldp_pipeline_name/
 - **pytest, black, flake8, mypy**: Development and code quality tools (install with `uv sync --extra dev`)
 - **databricks-sdk**: Databricks SDK for platform integration
 
-### LDP Dependencies
-- **Databricks Runtime**: Required for Lakeflow Declarative Pipelines
-- **Lakeflow Declarative Pipelines**: Declarative pipeline framework (now called LDP)
+### SDP2DBX Dependencies
+- **Databricks Runtime**: Required for Spark Declarative Pipelines
+- **Spark Declarative Pipelines**: Declarative pipeline framework (formerly Delta Live Tables)
 - **Auto Loader**: Streaming file ingestion capability
 - **Unity Catalog**: Data governance and lineage tracking
 
@@ -215,10 +215,10 @@ ldp_pipeline_name/
 - Run tests from pipeline directory: `cd brickfood && uv run pytest tests/ -v`
 - All tests validate data integrity, schema consistency, and analytical queries
 
-### LDP Transformations
-- Use `@dlt.table` decorator to define materialized views
-- Apply `@dlt.expect` decorators for data quality validation
-- Leverage `dlt.read()` for referencing upstream tables
+### SDP2DBX Transformations
+- Use `@dp.table` decorator to define materialized views
+- Apply `@dp.expect` decorators for data quality validation
+- Leverage `dp.read()` for referencing upstream tables
 - Auto Loader handles streaming data ingestion with schema evolution
 
 ## Project Structure Overview
@@ -237,7 +237,7 @@ etl-pipelines/
     │   │   └── calculate_sales_tax.py  # Sales tax analytics
     │   ├── oil_rigs/         # IoT sensor monitoring pipeline
     │   └── utils/            # Shared utilities (order_gen_util, oil_gen_util)
-    ├── ldp/                  # Lakeflow Declarative Pipelines
+    ├── sdp2dbx/              # Spark Declarative Pipelines (Databricks)
     │   └── music_analytics/  # Million Song Dataset processing
     └── generators/           # Cross-framework data generators
 ```

@@ -1,25 +1,24 @@
-# Databricks notebook source
-# ldp_musical_pipeline.py
+# Databricks Python file for Spark Declarative Pipelines on Databricks
+# sdp_musical_pipeline.py
 # -----------------------------------------------------------
-# Lakeflow Declarative Pipelines implementation for the Million Song Dataset
-# Demonstrates LDP patterns with streaming data ingestion
+# Spark Declarative Pipelines implementation for the Million Song Dataset
+# Demonstrates SDP patterns with streaming data ingestion on Databricks
 #
-# Key Benefits of Lakeflow Declarative Pipelines:
-# 1. Simplified Development & Maintenance: LDP uses declarative @dlt.table decorators that
+# Key Benefits of Spark Declarative Pipelines:
+# 1. Simplified Development & Maintenance: SDP uses declarative @dp.table decorators that
 #    automatically handle complex orchestration, dependency management, and error recovery,
 #    reducing code complexity compared to traditional ETL frameworks.
 #
-# 2. Built-in Data Quality & Governance: Native @dlt.expect decorators provide comprehensive
+# 2. Built-in Data Quality & Governance: Native @dp.expect decorators provide comprehensive
 #    data validation with automatic quarantine of bad records, detailed quality metrics,
 #    and lineage tracking without additional infrastructure setup.
 #
-# 3. Auto-scaling & Cost Optimization: LDP automatically optimizes cluster sizing, manages
+# 3. Auto-scaling & Cost Optimization: SDP automatically optimizes cluster sizing, manages
 #    incremental processing, orchestration, and execution order, helping reduce costs by
 #    only sizing resources it needs for successful and efficient execution.
 # -----------------------------------------------------------
 
-import dlt
-from pyspark.sql.functions import desc, expr
+from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
     DoubleType,
@@ -28,6 +27,8 @@ from pyspark.sql.types import (
     StructType,
     StructField,
 )
+from pyspark.sql.window import Window
+
 
 # Location of the raw subset of the Million Song Dataset
 file_path = "/databricks-datasets/songs/data-001"
@@ -61,11 +62,10 @@ schema = StructType(
 # -----------------------------------------------------------
 # Raw ingestion table - Bronze layer
 # -----------------------------------------------------------
-@dlt.table(
-
+@dp.table(
         name="songs_raw_bronze",
         comment="Raw data from a subset of the Million Song Dataset; a collection "
-        "of features and metadata for contemporary music tracks. Processed via Lakeflow Declarative Pipelines."
+        "of features and metadata for contemporary music tracks. Processed via Spark Declarative Pipelines."
     )
 def songs_raw_bronze():
     """Ingest new CSV files as they arrive with Auto Loader."""
@@ -102,16 +102,16 @@ def get_prepared_songs_data():
 # 1. Silver Layer - Specialized Tables
 # -----------------------------------------------------------
 
-@dlt.table(
+@dp.table(
     name="songs_metadata_silver",
     comment="Song metadata and release information - focused on temporal and release data."
 )
-@dlt.expect("valid_release_year", "year > 1900 AND year <= 2030")
-@dlt.expect("valid_song_title_metadata", "song_title IS NOT NULL AND trim(song_title) != ''")
-@dlt.expect("valid_artist_name_metadata", "artist_name IS NOT NULL AND trim(artist_name) != ''")
-@dlt.expect("valid_release_info", "release IS NOT NULL AND trim(release) != ''")
-@dlt.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
-@dlt.expect("valid_artist_location", "artist_location IS NULL OR trim(artist_location) != ''")
+@dp.expect("valid_release_year", "year > 1900 AND year <= 2030")
+@dp.expect("valid_song_title_metadata", "song_title IS NOT NULL AND trim(song_title) != ''")
+@dp.expect("valid_artist_name_metadata", "artist_name IS NOT NULL AND trim(artist_name) != ''")
+@dp.expect("valid_release_info", "release IS NOT NULL AND trim(release) != ''")
+@dp.expect("reasonable_duration_metadata", "duration > 10 AND duration < 3600")
+@dp.expect("valid_artist_location", "artist_location IS NULL OR trim(artist_location) != ''")
 def songs_metadata_silver():
     """Silver table focused on song metadata, releases, and temporal information."""
     prepared_data = get_prepared_songs_data()
@@ -132,15 +132,15 @@ def songs_metadata_silver():
 # -----------------------------------------------------------
 # 2. Silver Layer - Specialized Tables
 # -----------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="songs_audio_features_silver",
     comment="Song audio features and musical characteristics - focused on tempo, rhythm and musical analysis."
 )
-@dlt.expect("valid_tempo_range", "tempo > 40 AND tempo < 250")
-@dlt.expect("valid_time_signature_range", "time_signature >= 1 AND time_signature <= 12")
-@dlt.expect("valid_song_title_audio", "song_title IS NOT NULL AND trim(song_title) != ''")
-@dlt.expect("valid_artist_name_audio", "artist_name IS NOT NULL AND trim(artist_name) != ''")
-@dlt.expect("reasonable_duration_audio", "duration > 10 AND duration < 3600")
+@dp.expect("valid_tempo_range", "tempo > 40 AND tempo < 250")
+@dp.expect("valid_time_signature_range", "time_signature >= 1 AND time_signature <= 12")
+@dp.expect("valid_song_title_audio", "song_title IS NOT NULL AND trim(song_title) != ''")
+@dp.expect("valid_artist_name_audio", "artist_name IS NOT NULL AND trim(artist_name) != ''")
+@dp.expect("reasonable_duration_audio", "duration > 10 AND duration < 3600")
 def songs_audio_features_silver():
     """Silver table focused on audio characteristics and musical features."""
     prepared_data = get_prepared_songs_data()
@@ -164,7 +164,7 @@ def songs_audio_features_silver():
 # -----------------------------------------------------------
 # 1. Aggregated Gold layer view: Top artists per year
 # -----------------------------------------------------------
-@dlt.table(  
+@dp.table(  
         name="top_artists_by_year_gold",
         comment="A table summarizing counts of songs released by the artists "
         "who released the most songs each year."
@@ -172,29 +172,27 @@ def songs_audio_features_silver():
 
 def top_artists_by_year_gold():
     return (
-        dlt.read("songs_metadata_silver")
+        dp.read("songs_metadata_silver")
         .filter(F.col("year") > 0)
         .groupBy("artist_name", "year")
         .count()
         .withColumnRenamed("count", "total_number_of_songs")
-        .sort(F.desc("total_number_of_songs"), F.desc("year"))
+        .sort(F.desc("total_number_of_songs"), F.desc("year")
+
     )
-
-
-from pyspark.sql import functions as F
-from pyspark.sql.window import Window
+    
 
 # ---------------------------------------------------------------------------
-# Create additional materialized views using Lakeflow Declarative Pipelines
-# 
+# Create additional materialized views using Spark Declarative Pipelines
+#
 # 2. Aggregated Gold layer view: Top artists across the entire catalogue
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="top_artists_overall_gold",
-    comment="All-time count of songs released by each artist via Lakeflow Declarative Pipelines."
+    comment="All-time count of songs released by each artist via Spark Declarative Pipelines."
 )
 def top_artists_overall_gold():
-    df = dlt.read("songs_metadata_silver")
+    df = dp.read("songs_metadata_silver")
 
     result = (df.groupBy("artist_name")
                 .agg(F.count("*").alias("total_number_of_songs"))
@@ -206,14 +204,14 @@ def top_artists_overall_gold():
 # ---------------------------------------------------------------------------
 # 3. Aggregated Gold layer view: Year-over-year song-level summary statistics
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="yearly_song_stats_gold",
-    comment="Year-over-year summary statistics for released songs processed by Lakeflow Declarative Pipelines."
+    comment="Year-over-year summary statistics for released songs processed by Spark Declarative Pipelines."
 )
 def yearly_song_stats_gold():
     # Join both silver tables to get complete yearly statistics
-    metadata_df = dlt.read("songs_metadata_silver")
-    audio_df = dlt.read("songs_audio_features_silver")
+    metadata_df = dp.read("songs_metadata_silver")
+    audio_df = dp.read("songs_audio_features_silver")
 
     # Join on song and artist to get complete data
     df = metadata_df.join(
@@ -241,17 +239,17 @@ def yearly_song_stats_gold():
 # ---------------------------------------------------------------------------
 # 4. Aggregated Gold layer view: Location-level song statistics
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="artist_location_summary_gold",
-    comment="Song counts and average attributes by artist location using Lakeflow Declarative Pipelines."
+    comment="Song counts and average attributes by artist location using Spark Declarative Pipelines."
 )
-@dlt.expect("valid_location_summary", "location IS NOT NULL AND trim(location) != ''")
-@dlt.expect("positive_song_count", "songs_from_location > 0")
-@dlt.expect("positive_artist_count", "unique_artists_from_location > 0")
-@dlt.expect("reasonable_duration_location", "avg_duration_seconds > 0 AND avg_duration_seconds < 3600")
+@dp.expect("valid_location_summary", "location IS NOT NULL AND trim(location) != ''")
+@dp.expect("positive_song_count", "songs_from_location > 0")
+@dp.expect("positive_artist_count", "unique_artists_from_location > 0")
+@dp.expect("reasonable_duration_location", "avg_duration_seconds > 0 AND avg_duration_seconds < 3600")
 def artist_location_summary_gold():
     """Analyze geographic distribution of musical output using properly validated silver layer data."""
-    df = dlt.read("songs_metadata_silver")
+    df = dp.read("songs_metadata_silver")
 
     result = (df
         .withColumn("location",
@@ -271,13 +269,13 @@ def artist_location_summary_gold():
 # 5. Aggregated Gold layer view: Release trends and temporal analysis
 # ---------------------------------------------------------------------------
 
-@dlt.table(
+@dp.table(
     name="release_trends_gold",
     comment="Release trends and temporal analysis from metadata silver layer."
 )
 def release_trends_gold():
     """Analyze release patterns, temporal trends, and album productivity over time."""
-    df = dlt.read("songs_metadata_silver")
+    df = dp.read("songs_metadata_silver")
 
     result = (df
         .groupBy("year")
@@ -298,13 +296,13 @@ def release_trends_gold():
 # ---------------------------------------------------------------------------
 # 6. Aggregated Gold layer view: Artist discography and career metrics
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="artist_discography_gold",
     comment="Artist catalog analysis including career span and productivity metrics from metadata silver."
 )
 def artist_discography_gold():
     """Comprehensive artist discography analysis with career metrics."""
-    df = dlt.read("songs_metadata_silver")
+    df = dp.read("songs_metadata_silver")
 
     result = (df
         .groupBy("artist_name")
@@ -327,13 +325,13 @@ def artist_discography_gold():
 # ---------------------------------------------------------------------------
 # 7. Aggregated Gold layer view: Musical characteristics and analysis
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="musical_characteristics_gold",
     comment="Audio feature distributions and musical analysis from audio features silver layer."
 )
 def musical_characteristics_gold():
     """Analyze tempo distributions, time signatures, and musical characteristics."""
-    df = dlt.read("songs_audio_features_silver")
+    df = dp.read("songs_audio_features_silver")
 
     # Create tempo categories for analysis
     result = (df
@@ -360,13 +358,13 @@ def musical_characteristics_gold():
 # ---------------------------------------------------------------------------
 # 8. Aggregated Gold layer view: Tempo and time signature relationship analysis
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="tempo_time_signature_analysis_gold",
     comment="Detailed tempo and time signature relationship analysis from audio features silver."
 )
 def tempo_time_signature_analysis_gold():
     """Deep analysis of tempo and time signature relationships and patterns."""
-    df = dlt.read("songs_audio_features_silver")
+    df = dp.read("songs_audio_features_silver")
 
     result = (df
         .groupBy("time_signature")
@@ -390,13 +388,13 @@ def tempo_time_signature_analysis_gold():
 # ---------------------------------------------------------------------------
 # 9. Aggregated Gold layer view: Comprehensive artist profile
 # ---------------------------------------------------------------------------
-@dlt.table(
+@dp.table(
     name="comprehensive_artist_profile_gold",
     comment="Combined artist analysis merging metadata and audio characteristics from both silver tables."
 )
 def comprehensive_artist_profile_gold():
     """Comprehensive artist profiles combining discography and musical style analysis."""
-    metadata_df = dlt.read("songs_metadata_silver").select(
+    metadata_df = dp.read("songs_metadata_silver").select(
         "artist_name",
         "song_title",
         "year",
@@ -404,7 +402,7 @@ def comprehensive_artist_profile_gold():
         "release"
     )
 
-    audio_df = dlt.read("songs_audio_features_silver").select(
+    audio_df = dp.read("songs_audio_features_silver").select(
         "artist_name",
         "song_title",
         "tempo",

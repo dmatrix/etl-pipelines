@@ -1,7 +1,7 @@
 # ETL Pipelines - Comprehensive Data Engineering Examples
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
-[![PySpark](https://img.shields.io/badge/PySpark-4.1.0.dev1-orange.svg?style=flat&logo=apache-spark&logoColor=white)](https://spark.apache.org/)
+[![PySpark](https://img.shields.io/badge/PySpark-4.1.0.preview2-orange.svg?style=flat&logo=apache-spark&logoColor=white)](https://spark.apache.org/)
 [![SDP](https://img.shields.io/badge/Spark%20Declarative%20Pipelines-SDP-brightgreen.svg?style=flat&logo=apache-spark&logoColor=white)](https://spark.apache.org/)
 [![Databricks](https://img.shields.io/badge/Databricks-SDP2DBX-red.svg?style=flat&logo=databricks&logoColor=white)](https://databricks.com/)
 [![UV](https://img.shields.io/badge/UV-Package%20Manager-purple.svg?style=flat)](https://github.com/astral-sh/uv)

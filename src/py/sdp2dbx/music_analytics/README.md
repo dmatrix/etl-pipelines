@@ -419,7 +419,7 @@ This section provides a comprehensive list of all gold layer tables with example
 ```
 src/py/sdp2dbx/music_analytics/
 ├── transformations/
-│   └── ldp_musical_pipeline.py     # Main pipeline definition
+│   └── sdp_musical_pipeline.py     # Main pipeline definition
 └── README.md                        # This documentation
 ```
 

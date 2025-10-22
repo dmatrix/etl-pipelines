@@ -96,7 +96,7 @@ cd src/py/sdp2dbx/music_analytics
 ## 🛠️ Technologies & Frameworks
 
 ### Core Technologies
-- **PySpark 4.1.0.dev1**: Latest Spark features with Python API
+- **PySpark 4.1.0.preview2**: Latest Spark features with Python API
 - **Databricks Spark Declarative Pipelines**: Real-time data processing platform
 - **Unity Catalog**: Data governance and lineage tracking
 - **UV Package Manager**: Modern Python dependency management
@@ -168,7 +168,7 @@ This repository demonstrates:
 - **Python 3.11+**: Required for all frameworks
 - **UV Package Manager**: Modern dependency management
 - **Java 11+**: Required by PySpark (handled automatically)
-- **Databricks Workspace**: Required for DLT pipelines
+- **Databricks Workspace**: Required for SPD pipelines on Databricks
 
 ### Installation
 ```bash

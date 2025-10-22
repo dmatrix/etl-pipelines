@@ -1,4 +1,4 @@
-# Music Analytics - Databricks Spark Declarative Pipeline
+# Music Analytics - Spark Declarative Pipeline on Databricks Platform
 
 ## Overview
 

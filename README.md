@@ -14,7 +14,7 @@
 
 ---
 
-A collection of modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. This repository showcases both open source Spark Declarative Pipelines (SDP) for analytics workloads and [Spark Declarative Pipelines on Databricks](https://docs.databricks.com/aws/en/dlt/), formely called LDP, for real-time data processing.
+A collection of modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. This repository showcases both open source Spark Declarative Pipelines (SDP) for analytics workloads and [Spark Declarative Pipelines on Databricks](https://docs.databricks.com/aws/en/dlt/), formely called LDP, for data processing.
 
 ## 📁 Project Structure
 

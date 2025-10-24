@@ -141,7 +141,7 @@ cd src/py/sdp2dbx/music_analytics
 cat README.md
 
 # Deploy to Databricks workspace (requires Databricks environment)
-# See transformations/ldp_musical_pipeline.py for implementation
+# See transformations/sdp_musical_pipeline.py for implementation
 ```
 
 ## 🎯 Learning Objectives

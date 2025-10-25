@@ -1,4 +1,4 @@
-# ETL Pipelines - Comprehensive Data Engineering Examples
+# Spark Declarative Pipelines - Comprehensive Data Engineering Examples
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![PySpark](https://img.shields.io/badge/PySpark-4.1.0.preview2-orange.svg?style=flat&logo=apache-spark&logoColor=white)](https://spark.apache.org/)

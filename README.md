@@ -97,8 +97,7 @@ cd src/py/sdp2dbx/music_analytics
 
 ### Core Technologies
 - **PySpark 4.1.0.preview2**: Latest Spark features with Python API
-- **Databricks Spark Declarative Pipelines**: Real-time data processing platform
-- **Unity Catalog**: Data governance and lineage tracking
+- **Spark Declarative Pipelines**: Building data processing pipelines with materialized views and streaming tables
 - **UV Package Manager**: Modern Python dependency management
 - **Faker**: Realistic synthetic data generation
 - **Plotly**: Interactive data visualizations

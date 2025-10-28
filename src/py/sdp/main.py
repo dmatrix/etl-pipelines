@@ -83,10 +83,10 @@ def run_oil_rigs_pipeline():
         
         print("\n2. Querying sensor data...")
         subprocess.run(["python", "query_oil_rigs_tables.py"], check=True)
-        
-        print("\n3. Generating temperature visualizations...")
-        subprocess.run(["python", "plot_temperatures.py"], check=True)
-        
+
+        print("\n3. Generating visualizations...")
+        subprocess.run(["uv", "run", "python", "scripts/plot_sensors.py", "--all-metrics", "--rig", "each", "--output-dir", "artifacts"], check=True)
+
         print("\n✅ Oil Rigs pipeline completed successfully!")
         return 0
         

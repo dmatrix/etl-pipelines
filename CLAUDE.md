@@ -4,14 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. The project showcases both **Spark Declarative Pipelines (SDP)** for analytics workloads and **Spark Declarative Pipelines (SDP2DBX)** for streaming data processing:
+This repository contains modern ETL pipeline implementations demonstrating different data processing paradigms and frameworks. The project showcases both **Spark Declarative Pipelines (SDP)** for analytics workloads and **Lakeflow Spark Declarative Pipelines (LSDP)** for streaming data processing:
 
 ### SDP Examples (src/py/sdp/)
 1. **BrickFood** (`src/py/sdp/brickfood/`) - E-commerce order processing and analytics system
 2. **Oil Rigs** (`src/py/sdp/oil_rigs/`) - Industrial IoT sensor monitoring and analysis system
 
-### SDP2DBX Examples (src/py/sdp2dbx/)
-1. **Music Analytics** (`src/py/sdp2dbx/music_analytics/`) - Million Song Dataset processing with medallion architecture
+### LSDP Examples (src/py/lsdp/)
+1. **Music Analytics** (`src/py/lsdp/music_analytics/`) - Million Song Dataset processing with medallion architecture
 
 The project is structured as a uv-managed Python package with virtual environment isolation and modern dependency management.
 
@@ -47,16 +47,16 @@ cd src/py/sdp && python main.py oil-rigs
 spark-pipelines run --conf spark.sql.catalogImplementation=hive --conf spark.sql.warehouse.dir=spark-warehouse
 ```
 
-#### SDP2DBX Pipelines
+#### LSDP Lakeflow Spark Declarative Pipelines (on Databricks)
 ```bash
-# Music Analytics pipeline (Databricks Spark Declarative Pipelines)
-cd src/py/sdp2dbx/music_analytics
+# Music Analytics pipeline (Lakeflow Spark Declarative Pipelines on Databricks)
+cd src/py/lsdp/music_analytics
 
 # View pipeline documentation and architecture
 cat README.md
 
 # Deploy to Databricks workspace (requires Databricks environment)
-# See transformations/ldp_musical_pipeline.py for implementation
+# See transformations/sdp_musical_pipeline.py for implementation
 ```
 
 ### Development and Testing Commands
@@ -112,7 +112,7 @@ uv run python calculate_sales_tax.py     # Calculate sales tax and analytics
 - **Pipeline Configuration**: YAML files (`pipeline.yml`) define transformation discovery patterns using glob patterns
 - **Storage**: Local Spark warehouse with Hive-compatible storage
 
-#### SDP2DBX (Spark Declarative Pipelines for Databricks)
+#### LSDP (Lakeflow Spark Declarative Pipelines on Databricks)
 - **Framework**: Databricks native declarative pipeline framework (formerly Delta Live Tables)
 - **Medallion Architecture**: Bronze/Silver/Gold data layers with automatic lineage
 - **Data Quality**: Built-in expectations and validation with `@dp.expect`
@@ -136,12 +136,12 @@ sdp_pipeline_name/
 └── *.py                      # Other query and analysis modules
 ```
 
-#### SDP2DBX Pipeline Structure
+#### LSDP Pipeline Structure
 ```
-sdp2dbx_pipeline_name/
+lsdp_pipeline_name/
 ├── README.md                 # Comprehensive pipeline documentation
 ├── images/                   # Pipeline visualization assets
-└── transformations/          # SDP2DBX transformation definitions
+└── transformations/          # LSDP transformation definitions
     └── *.py                  # Python files with @dp.table decorators
 ```
 
@@ -153,7 +153,7 @@ sdp2dbx_pipeline_name/
 3. **Storage**: Data persists to Hive-compatible spark-warehouse directory
 4. **Analytics**: Query modules provide data access and visualization capabilities
 
-#### SDP2DBX Data Flow (Music Analytics)
+#### LSDP Data Flow (Music Analytics)
 1. **Bronze Layer**: Raw data ingestion from Million Song Dataset with Auto Loader (`songs_raw`)
 2. **Silver Layer**: Specialized data preparation with comprehensive validation
    - `songs_metadata_silver`: Release and temporal information with year/duration validation
@@ -172,7 +172,7 @@ sdp2dbx_pipeline_name/
 - **Hybrid SQL/Python**: SQL files and Python functions seamlessly integrated in transformation pipeline
 - **Configuration-driven Discovery**: `pipeline.yml` uses glob patterns to auto-discover transformation files
 
-#### SDP on Databricks  Patterns
+#### LSDP on Databricks  Patterns
 - **Medallion Architecture**: Bronze/Silver/Gold progression with clear data lineage and specialized silver tables
 - **Data Quality Framework**: Comprehensive `@dp.expect` decorators for validation rules (tempo ranges, year validation, duration checks)
 - **Streaming Ingestion**: Auto Loader for incremental data processing with schema enforcement
@@ -191,7 +191,7 @@ sdp2dbx_pipeline_name/
 - **pytest, black, flake8, mypy**: Development and code quality tools (install with `uv sync --extra dev`)
 - **databricks-sdk**: Databricks SDK for platform integration
 
-### SDP2DBX Dependencies
+### LSDP Dependencies
 - **Databricks Runtime**: Required for Spark Declarative Pipelines
 - **Spark Declarative Pipelines**: Declarative pipeline framework (formerly Delta Live Tables)
 - **Auto Loader**: Streaming file ingestion capability
@@ -215,7 +215,7 @@ sdp2dbx_pipeline_name/
 - Run tests from pipeline directory: `cd brickfood && uv run pytest tests/ -v`
 - All tests validate data integrity, schema consistency, and analytical queries
 
-### SDP on Databricks Transformations
+### LSDP on Databricks Transformations
 - Use `@dp.table` decorator to define materialized views
 - Apply `@dp.expect` decorators for data quality validation
 - Leverage `dp.read()` for referencing upstream tables
@@ -237,7 +237,7 @@ etl-pipelines/
     │   │   └── calculate_sales_tax.py  # Sales tax analytics
     │   ├── oil_rigs/         # IoT sensor monitoring pipeline
     │   └── utils/            # Shared utilities (order_gen_util, oil_gen_util)
-    ├── sdp2dbx/              # Spark Declarative Pipelines (Databricks)
+    ├── lsdp/                 # Lakeflow Spark Declarative Pipelines (on Databricks)
     │   └── music_analytics/  # Million Song Dataset processing
     └── generators/           # Cross-framework data generators
 ```

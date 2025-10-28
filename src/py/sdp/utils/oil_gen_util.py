@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import StructType, StructField, StringType, FloatType, TimestampType
-from faker import Faker
 import random
+import math
 from datetime import datetime, timedelta
 import uuid
 
@@ -23,65 +23,142 @@ OIL_RIGS = {
 
 def generate_sensor_data(rig_name: str, start_date: datetime, num_events: int = 100) -> list:
     """
-    Generates sensor data for oil rig monitoring.
-    
+    Generates realistic sensor data for oil rig monitoring with meaningful patterns:
+    - Temperature: Daily cycles with operational patterns (higher during drilling)
+    - Pressure: Correlated with drilling depth and operations (increases during drilling)
+    - Water Level: Gradual accumulation with periodic pump-outs
+
     Args:
         rig_name (str): Name of the oil rig (must be a key in OIL_RIGS)
         start_date (datetime): Starting timestamp for the sensor data
         num_events (int): Number of events to generate. Defaults to 100.
-    
+
     Returns:
         list: List of dictionaries containing sensor data
     """
     data = []
-    
-    # Sensor ranges
-    SENSOR_RANGES = {
-        'temperature': (150, 350),  # Fahrenheit
-        'pressure': (2000, 5000),   # PSI
-        'water_level': (100, 500)   # Feet
-    }
-    
+
+    # Initialize baseline values for realistic trends
+    base_temp = 180.0  # Base temperature in Fahrenheit
+    base_pressure = 2500.0  # Base pressure in PSI
+    water_level = 120.0  # Starting water level in feet
+
+    # Operation states: simulate drilling cycles
+    # Drilling increases temp and pressure, idle periods decrease them
+    drilling_cycle_hours = 8  # Hours per drilling cycle
+    idle_cycle_hours = 4  # Hours of idle time between drilling
+
     current_time = start_date
-    
+    hours_elapsed = 0
+
     for _ in range(num_events):
-        for sensor_type, (min_val, max_val) in SENSOR_RANGES.items():
-            # Add some random variation but maintain a general trend
-            base_value = random.uniform(min_val, max_val)
-            # Add some noise
-            value = base_value + random.uniform(-base_value * 0.05, base_value * 0.05)
-            
+        # Calculate time of day for daily temperature cycle (ambient influence)
+        hour_of_day = current_time.hour + current_time.minute / 60.0
+
+        # Daily temperature cycle (ambient temperature effect)
+        # Peak around 3 PM (15:00), lowest around 5 AM (5:00)
+        daily_temp_variation = 15 * math.sin((hour_of_day - 5) * math.pi / 12)
+
+        # Determine operational state (drilling vs idle)
+        cycle_position = hours_elapsed % (drilling_cycle_hours + idle_cycle_hours)
+        is_drilling = cycle_position < drilling_cycle_hours
+
+        # Temperature calculation
+        if is_drilling:
+            # Higher temperature during drilling operations
+            operational_temp = base_temp + 80 + random.uniform(-10, 15)
+        else:
+            # Lower temperature during idle periods
+            operational_temp = base_temp + 20 + random.uniform(-5, 10)
+
+        temperature = operational_temp + daily_temp_variation + random.uniform(-5, 5)
+        temperature = max(150, min(350, temperature))  # Clamp to realistic range
+
+        # Pressure calculation (correlated with drilling activity)
+        if is_drilling:
+            # Pressure increases during drilling, with gradual buildup
+            drilling_progress = cycle_position / drilling_cycle_hours
+            pressure = base_pressure + (1500 * drilling_progress) + random.uniform(-100, 150)
+        else:
+            # Pressure gradually decreases during idle time
+            idle_progress = (cycle_position - drilling_cycle_hours) / idle_cycle_hours
+            pressure = base_pressure + (1500 * (1 - idle_progress)) + random.uniform(-80, 100)
+
+        pressure = max(2000, min(5000, pressure))  # Clamp to realistic range
+
+        # Water level calculation (gradual accumulation with periodic pump-outs)
+        # Creates realistic saw-tooth pattern
+        if is_drilling:
+            # Water accumulates steadily during drilling
+            water_level += random.uniform(3, 6)
+        else:
+            # Pump out water during idle periods - gradual throughout idle time
+            idle_progress = (cycle_position - drilling_cycle_hours) / idle_cycle_hours
+
+            if idle_progress < 0.6:  # First 60% of idle period (2.4 hours) - active pump-out
+                # Pump out more aggressively at the start, then taper off
+                pump_rate = 20 * (1 - idle_progress)  # Starts at ~20, decreases to ~8
+                water_level -= random.uniform(pump_rate * 0.8, pump_rate * 1.2)
+            else:
+                # Last 40% of idle - minimal accumulation
+                water_level += random.uniform(0.5, 1.5)
+
+        # Keep water level in realistic range with wider bounds
+        water_level = max(80, min(450, water_level))
+
+        # Add occasional anomalies (5% chance)
+        if random.random() < 0.05:
+            # Simulate equipment issues or unusual conditions
+            temperature += random.uniform(10, 30)
+            pressure += random.uniform(200, 400)
+
+        # Create sensor readings
+        for sensor_type, sensor_value in [
+            ('temperature', temperature),
+            ('pressure', pressure),
+            ('water_level', water_level)
+        ]:
             data.append({
                 'event_id': str(uuid.uuid4()),
                 'rig_name': rig_name,
                 'location': OIL_RIGS[rig_name]['location'],
                 'region': OIL_RIGS[rig_name]['region'],
                 'sensor_type': sensor_type,
-                'sensor_value': round(value, 2),
+                'sensor_value': round(sensor_value, 2),
                 'timestamp': current_time,
                 'latitude': OIL_RIGS[rig_name]['lat'],
                 'longitude': OIL_RIGS[rig_name]['lon']
             })
-        
+
         # Increment time by 15 minutes
         current_time += timedelta(minutes=15)
-    
+        hours_elapsed += 0.25  # 15 minutes = 0.25 hours
+
     return data
 
 def create_oil_rig_events_dataframe(rig_name: str, start_date: datetime = None, num_events: int = 100) -> DataFrame:
     """
     Creates a Spark DataFrame with oil rig sensor events.
-    
+
     Args:
         rig_name (str): Name of the oil rig (must be a key in OIL_RIGS)
         start_date (datetime): Starting timestamp for the sensor data. Defaults to 2 days ago.
         num_events (int): Number of events to generate. Defaults to 100.
-    
+
     Returns:
         DataFrame: Spark DataFrame containing oil rig sensor events
     """
-    # Initialize Spark session
-    spark = SparkSession.active()
+    # Initialize Spark session - create one if it doesn't exist
+    try:
+        spark = SparkSession.getActiveSession()
+        if spark is None:
+            spark = SparkSession.builder \
+                .appName("OilRigSensorDataGenerator") \
+                .getOrCreate()
+    except Exception:
+        spark = SparkSession.builder \
+            .appName("OilRigSensorDataGenerator") \
+            .getOrCreate()
     
     # Define schema
     schema = StructType([

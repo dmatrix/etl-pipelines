@@ -28,7 +28,7 @@ etl-pipelines/
     │   ├── brickfood/                # E-commerce analytics pipeline
     │   ├── oil_rigs/                 # Industrial IoT monitoring pipeline
     │   └── utils/                    # Shared data generation utilities
-    ├── sdp2dbx/                      # Spark Declarative Pipelines (on Databricks)
+    ├── lsdp/                         # Lakeflow Spark Declarative Pipelines (on Databricks)
     │   └── music_analytics/          # Million Song Dataset analytics pipeline
     │       ├── README.md             # Music analytics documentation
     │       ├── images/               # Pipeline visualization assets
@@ -55,12 +55,12 @@ python main.py brickfood
 python main.py oil-rigs
 ```
 
-### SDP2DBX - Spark Declarative Pipelines (on Databricks)
+### LSDP - Lakeflow Spark Declarative Pipelines (on Databricks)
 Ideal for streaming data processing with medallion architecture and data quality validation on Databricks Platform.
 
 ```bash
 # Navigate to Music Analytics SDP example
-cd src/py/sdp2dbx/music_analytics
+cd src/py/lsdp/music_analytics
 
 # Deploy pipeline to Databricks workspace
 # Pipeline processes Million Song Dataset with medallion architecture

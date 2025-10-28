@@ -19,8 +19,10 @@ classifiers = [
 dependencies = [
     "faker>=37.6.0",
     "plotly>=6.3.0",
-    "pyspark @ file:///Users/jules/pydist/pyspark-4.1.0rc2.tar.gz",
-    "pyspark-connect @ file:///Users/jules/pydist/pyspark_connect-4.1.0rc2.tar.gz",
+    "kaleido>=0.2.0",
+    "pillow>=10.0.0",
+    "pyspark @ file:///Users/jules/pydist/pyspark-4.1.0.dev3.tar.gz",
+    "pyspark-connect @ file:///Users/jules/pydist/pyspark_connect-4.1.0.dev3.tar.gz",
     "databricks-sdk>=0.12.0",
 ]
 
